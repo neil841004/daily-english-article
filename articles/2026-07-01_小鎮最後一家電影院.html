@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小鎮最後一家電影院</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f6f7f4;
+  --surface: #ffffff;
+  --ink: #20211f;
+  --muted: #666b61;
+  --line: #d8ddd2;
+  --accent: #0f766e;
+  --accent-ink: #084b45;
+  --en-highlight: #ffe58a;
+  --zh-highlight: #bfeee7;
+  --shadow: 0 18px 48px rgba(22, 30, 28, .14);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  line-height: 1.76;
+}
+a { color: var(--accent); text-underline-offset: .18em; }
+.lesson-shell { max-width: 1260px; margin: 0 auto; padding: 40px 28px 80px; }
+.cover-banner {
+  margin: 0 0 28px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #e8ece5;
+}
+.cover-banner img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.lesson-header { padding: 28px 0 30px; border-bottom: 1px solid var(--line); }
+.lesson-kicker { margin: 0 0 10px; color: var(--accent-ink); font-size: .82rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+h1, h2, h3 { line-height: 1.2; letter-spacing: 0; }
+h1 { margin: 0; font-size: clamp(2.2rem, 5vw, 4.7rem); font-weight: 800; }
+.lesson-subtitle { margin: 14px 0 0; color: var(--muted); font-size: clamp(1.35rem, 2vw, 1.62rem); }
+.article-section { padding: 34px 0 10px; }
+.article-section h2, .lesson-prose h2 { margin: 40px 0 22px; font-size: clamp(1.95rem, 3vw, 2.65rem); }
+.lesson-prose h3 { margin: 32px 0 12px; font-size: clamp(1.45rem, 2vw, 1.8rem); }
+.article-pairs { border-top: 1px solid var(--line); }
+.paragraph-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 52px);
+  padding: 36px 0;
+  border-bottom: 1px solid var(--line);
+}
+.article-paragraph { margin: 0; font-size: 1.56rem; line-height: 1.82; }
+.article-paragraph.english { font-family: Georgia, "Times New Roman", serif; font-size: 1.62rem; }
+.article-paragraph.chinese { color: #33413d; }
+.lesson-sentence {
+  border-radius: 5px;
+  padding: .08em .13em;
+  margin: -.08em -.04em;
+  transition: background-color .16s ease, box-shadow .16s ease, color .16s ease;
+}
+.lesson-sentence.active.sentence-en { background: var(--en-highlight); box-shadow: 0 0 0 2px rgba(204, 147, 18, .22); }
+.lesson-sentence.active.sentence-zh { background: var(--zh-highlight); box-shadow: 0 0 0 2px rgba(15, 118, 110, .18); }
+.word {
+  display: inline;
+  appearance: none;
+  border: 0;
+  border-bottom: 1px dotted rgba(15, 118, 110, .46);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+.word:hover, .word:focus-visible { color: var(--accent-ink); border-bottom-color: var(--accent-ink); outline: none; }
+code .word { font-family: inherit; }
+.lesson-prose {
+  max-width: 980px;
+  padding-top: 12px;
+  font-size: 1.5rem;
+  line-height: 1.78;
+}
+.lesson-prose p { margin: 14px 0; }
+.lesson-prose strong { font-weight: 750; }
+.lesson-prose code {
+  padding: .12em .34em;
+  border-radius: 5px;
+  background: #e8ece5;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: .92em;
+}
+.lesson-prose pre {
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #202622;
+  color: #f4f7ef;
+}
+.lesson-prose blockquote {
+  margin: 18px 0;
+  padding-left: 18px;
+  border-left: 4px solid var(--accent);
+  color: var(--muted);
+}
+.lesson-prose ol, .lesson-prose ul { padding-left: 1.45rem; margin: 8px 0 20px; }
+.lesson-prose li { margin: 7px 0; }
+.lesson-prose li > ul, .lesson-prose li > ol { margin-top: 8px; margin-bottom: 10px; }
+.completion-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding: 12px 0;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.completion-check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.completion-check:has(input:disabled) { color: var(--muted); }
+.sync-note { color: var(--muted); font-weight: 650; }
+.sync-note.hidden { display: none; }
+.lookup-popover {
+  position: fixed;
+  z-index: 30;
+  min-width: 260px;
+  max-width: min(380px, calc(100vw - 28px));
+  padding: 16px 17px;
+  border: 1px solid rgba(15, 118, 110, .22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .97);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity .14s ease, transform .14s ease;
+}
+.lookup-popover.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.lookup-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.lookup-word { margin: 0; font-size: 1.22rem; font-weight: 800; color: var(--accent-ink); }
+.speak-button {
+  flex: 0 0 auto;
+  min-width: 52px;
+  border: 1px solid rgba(15, 118, 110, .25);
+  border-radius: 7px;
+  background: #eff8f6;
+  color: var(--accent-ink);
+  font: inherit;
+  font-size: .92rem;
+  font-weight: 700;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+.speak-button:disabled { opacity: .45; cursor: not-allowed; }
+.lookup-actions { display: inline-flex; align-items: center; gap: 8px; }
+.star-button {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(15, 118, 110, .25);
+  border-radius: 7px;
+  background: #fff;
+  color: #8a6d1d;
+  font: inherit;
+  font-size: 1.12rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.star-button.is-saved {
+  border-color: rgba(180, 83, 9, .32);
+  background: #fff7da;
+  color: #b45309;
+}
+.star-button:disabled { opacity: .45; cursor: not-allowed; }
+.lookup-row { margin: 4px 0; color: var(--muted); font-size: 1rem; }
+.lookup-row strong { color: var(--ink); }
+@media (max-width: 760px) {
+  .lesson-shell { padding: 24px 18px 60px; }
+  .cover-banner { margin-bottom: 22px; }
+  .paragraph-pair { grid-template-columns: 1fr; gap: 14px; padding: 28px 0; }
+  .article-paragraph, .article-paragraph.english, .lesson-prose { font-size: 1.32rem; }
+  .lesson-subtitle { font-size: 1.22rem; }
+}
+</style>
+</head>
+<body>
+<main class="lesson-shell">
+<figure class="cover-banner">
+  <img src="../assets/covers/2026-07-01_小鎮最後一家電影院.png" alt="小鎮最後一家電影院封面圖">
+</figure>
+<header class="lesson-header">
+<p class="lesson-kicker"><button type="button" class="word" data-word="Daily">Daily</button> <button type="button" class="word" data-word="English">English</button> <button type="button" class="word" data-word="Coach">Coach</button></p>
+<h1>小鎮最後一家電影院</h1>
+<p class="lesson-subtitle">英文標題：<button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="Last">Last</button> <button type="button" class="word" data-word="Cinema">Cinema</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="Town">Town</button></p>
+
+</header>
+<section class="article-section" aria-labelledby="article-title">
+<h2 id="article-title">文章</h2>
+<div class="article-pairs">
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p01-s01"><button type="button" class="word" data-word="When">When</button> <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="talk">talk</button> <button type="button" class="word" data-word="about">about</button> <button type="button" class="word" data-word="progress">progress</button>, <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="often">often</button> <button type="button" class="word" data-word="imagine">imagine</button> <button type="button" class="word" data-word="shiny">shiny</button> <button type="button" class="word" data-word="new">new</button> <button type="button" class="word" data-word="buildings">buildings</button>, <button type="button" class="word" data-word="faster">faster</button> <button type="button" class="word" data-word="trains">trains</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="brighter">brighter</button> <button type="button" class="word" data-word="screens">screens</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p01-s02"><button type="button" class="word" data-word="In">In</button> <button type="button" class="word" data-word="many">many</button> <button type="button" class="word" data-word="towns">towns</button>, <button type="button" class="word" data-word="however">however</button>, <button type="button" class="word" data-word="progress">progress</button> <button type="button" class="word" data-word="has">has</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="quieter">quieter</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="more">more</button> <button type="button" class="word" data-word="complicated">complicated</button> <button type="button" class="word" data-word="face">face</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p01-s03"><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="may">may</button> <button type="button" class="word" data-word="arrive">arrive</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="day">day</button> <button type="button" class="word" data-word="an">an</button> <button type="button" class="word" data-word="old">old</button> <button type="button" class="word" data-word="bookstore">bookstore</button> <button type="button" class="word" data-word="closes">closes</button>, <button type="button" class="word" data-word="when">when</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="family">family</button> <button type="button" class="word" data-word="restaurant">restaurant</button> <button type="button" class="word" data-word="becomes">becomes</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="chain">chain</button> <button type="button" class="word" data-word="cafe">cafe</button>, <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="when">when</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="last">last</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="turns">turns</button> <button type="button" class="word" data-word="off">off</button> <button type="button" class="word" data-word="its">its</button> <button type="button" class="word" data-word="lights">lights</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p01-s04"><button type="button" class="word" data-word="For">For</button> <button type="button" class="word" data-word="years">years</button>, <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="small">small</button> <button type="button" class="word" data-word="town">town</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="southern">southern</button> <button type="button" class="word" data-word="Taiwan">Taiwan</button> <button type="button" class="word" data-word="faced">faced</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="exact">exact</button> <button type="button" class="word" data-word="moment">moment</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p01-s05"><button type="button" class="word" data-word="Its">Its</button> <button type="button" class="word" data-word="only">only</button> <button type="button" class="word" data-word="cinema">cinema</button>, <button type="button" class="word" data-word="Mingxing">Mingxing</button> <button type="button" class="word" data-word="Theater">Theater</button>, <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="been">been</button> <button type="button" class="word" data-word="open">open</button> <button type="button" class="word" data-word="since">since</button> <button type="button" class="word" data-word="the">the</button> 1960s.</span> <span class="lesson-sentence sentence-en" data-pair="p01-s06"><button type="button" class="word" data-word="Generations">Generations</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="gone">gone</button> <button type="button" class="word" data-word="there">there</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="first">first</button> <button type="button" class="word" data-word="dates">dates</button>, <button type="button" class="word" data-word="after-school">after-school</button> <button type="button" class="word" data-word="outings">outings</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="summer">summer</button> <button type="button" class="word" data-word="evenings">evenings</button> <button type="button" class="word" data-word="when">when</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="air">air</button> <button type="button" class="word" data-word="outside">outside</button> <button type="button" class="word" data-word="felt">felt</button> <button type="button" class="word" data-word="too">too</button> <button type="button" class="word" data-word="heavy">heavy</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="move">move</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p01-s07"><button type="button" class="word" data-word="By">By</button> 2024, <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="seats">seats</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="worn">worn</button>, <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="projector">projector</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="old">old</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="most">most</button> <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="preferred">preferred</button> <button type="button" class="word" data-word="streaming">streaming</button> <button type="button" class="word" data-word="platforms">platforms</button> <button type="button" class="word" data-word="at">at</button> <button type="button" class="word" data-word="home">home</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p01-s08"><button type="button" class="word" data-word="Closing">Closing</button> <button type="button" class="word" data-word="seemed">seemed</button> <button type="button" class="word" data-word="practical">practical</button>, <button type="button" class="word" data-word="even">even</button> <button type="button" class="word" data-word="unavoidable">unavoidable</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p01-s01">當人們談到進步時，常會想到閃亮的新建築、更快的火車，以及更明亮的螢幕。</span> <span class="lesson-sentence sentence-zh" data-pair="p01-s02">然而在許多城鎮裡，進步也有比較安靜、比較複雜的一面。</span> <span class="lesson-sentence sentence-zh" data-pair="p01-s03">它可能出現在老書店關門的那一天，出現在家庭餐館變成連鎖咖啡店的時候，或是當最後一家在地電影院熄燈時。</span> <span class="lesson-sentence sentence-zh" data-pair="p01-s04">多年來，台灣南部一個小鎮就面對了這樣的時刻。</span> <span class="lesson-sentence sentence-zh" data-pair="p01-s05">鎮上唯一的電影院「明星戲院」自 1960 年代便開始營業。</span> <span class="lesson-sentence sentence-zh" data-pair="p01-s06">好幾代人曾在那裡約會、放學後出遊，或在夏夜裡躲避戶外悶熱的空氣。</span> <span class="lesson-sentence sentence-zh" data-pair="p01-s07">到了 2024 年，座椅已經磨損，放映機也很老舊，大多數人更喜歡在家使用串流平台。</span> <span class="lesson-sentence sentence-zh" data-pair="p01-s08">關門看起來很實際，甚至像是無法避免的事。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p02-s01"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="owner">owner</button>, <button type="button" class="word" data-word="Mr">Mr</button>. <button type="button" class="word" data-word="Lin">Lin</button>, <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="dramatic">dramatic</button> <button type="button" class="word" data-word="man">man</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p02-s02"><button type="button" class="word" data-word="He">He</button> <button type="button" class="word" data-word="did">did</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="give">give</button> <button type="button" class="word" data-word="emotional">emotional</button> <button type="button" class="word" data-word="speeches">speeches</button> <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="post">post</button> <button type="button" class="word" data-word="angry">angry</button> <button type="button" class="word" data-word="messages">messages</button> <button type="button" class="word" data-word="online">online</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p02-s03"><button type="button" class="word" data-word="He">He</button> <button type="button" class="word" data-word="simply">simply</button> <button type="button" class="word" data-word="put">put</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="handwritten">handwritten</button> <button type="button" class="word" data-word="notice">notice</button> <button type="button" class="word" data-word="near">near</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="ticket">ticket</button> <button type="button" class="word" data-word="window">window</button>: “<button type="button" class="word" data-word="We">We</button> <button type="button" class="word" data-word="may">may</button> <button type="button" class="word" data-word="close">close</button> <button type="button" class="word" data-word="after">after</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="Mid-Autumn">Mid-Autumn</button> <button type="button" class="word" data-word="Festival">Festival</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p02-s04"><button type="button" class="word" data-word="Thank">Thank</button> <button type="button" class="word" data-word="you">you</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="sixty">sixty</button> <button type="button" class="word" data-word="years">years</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="memories">memories</button>.”</span> <span class="lesson-sentence sentence-en" data-pair="p02-s05"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="sentence">sentence</button> <button type="button" class="word" data-word="spread">spread</button> <button type="button" class="word" data-word="quickly">quickly</button> <button type="button" class="word" data-word="through">through</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="town">town</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p02-s06"><button type="button" class="word" data-word="Some">Some</button> <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="took">took</button> <button type="button" class="word" data-word="photos">photos</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="sign">sign</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="shared">shared</button> <button type="button" class="word" data-word="them">them</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="social">social</button> <button type="button" class="word" data-word="media">media</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p02-s07"><button type="button" class="word" data-word="Others">Others</button> <button type="button" class="word" data-word="walked">walked</button> <button type="button" class="word" data-word="into">into</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="theater">theater</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="first">first</button> <button type="button" class="word" data-word="time">time</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="years">years</button>, <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="because">because</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="eager">eager</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="watch">watch</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="latest">latest</button> <button type="button" class="word" data-word="action">action</button> <button type="button" class="word" data-word="film">film</button>, <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="because">because</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="suddenly">suddenly</button> <button type="button" class="word" data-word="felt">felt</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="losing">losing</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="would">would</button> <button type="button" class="word" data-word="mean">mean</button> <button type="button" class="word" data-word="losing">losing</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="part">part</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="themselves">themselves</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p02-s08"><button type="button" class="word" data-word="Places">Places</button> <button type="button" class="word" data-word="can">can</button> <button type="button" class="word" data-word="hold">hold</button> <button type="button" class="word" data-word="memory">memory</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="way">way</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="song">song</button> <button type="button" class="word" data-word="holds">holds</button> <button type="button" class="word" data-word="emotion">emotion</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p02-s09"><button type="button" class="word" data-word="You">You</button> <button type="button" class="word" data-word="do">do</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="always">always</button> <button type="button" class="word" data-word="notice">notice</button> <button type="button" class="word" data-word="their">their</button> <button type="button" class="word" data-word="value">value</button> <button type="button" class="word" data-word="until">until</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="close">close</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="disappearing">disappearing</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p02-s01">老闆林先生不是一個戲劇化的人。</span> <span class="lesson-sentence sentence-zh" data-pair="p02-s02">他沒有發表激動的演說，也沒有在網路上憤怒發文。</span> <span class="lesson-sentence sentence-zh" data-pair="p02-s03">他只是把一張手寫告示貼在售票窗口旁：「本戲院可能於中秋節後結束營業。</span> <span class="lesson-sentence sentence-zh" data-pair="p02-s04">感謝六十年的回憶。」</span> <span class="lesson-sentence sentence-zh" data-pair="p02-s05">這句話很快就在鎮上傳開了。</span> <span class="lesson-sentence sentence-zh" data-pair="p02-s06">有些人拍下告示，分享到社群媒體；</span> <span class="lesson-sentence sentence-zh" data-pair="p02-s07">也有人多年後再次走進戲院，不是因為特別想看最新的動作片，而是因為他們突然感覺到，失去這家戲院就像失去自己的一部分。</span> <span class="lesson-sentence sentence-zh" data-pair="p02-s08">地方能夠承載記憶，就像歌曲能承載情感一樣。</span> <span class="lesson-sentence sentence-zh" data-pair="p02-s09">你往往要等到它快消失時，才真正注意到它的價值。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p03-s01"><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="high">high</button> <button type="button" class="word" data-word="school">school</button> <button type="button" class="word" data-word="teacher">teacher</button> <button type="button" class="word" data-word="named">named</button> <button type="button" class="word" data-word="Ms">Ms</button>. <button type="button" class="word" data-word="Wu">Wu</button> <button type="button" class="word" data-word="decided">decided</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="sadness">sadness</button> <button type="button" class="word" data-word="alone">alone</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="useful">useful</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p03-s02"><button type="button" class="word" data-word="She">She</button> <button type="button" class="word" data-word="asked">asked</button> <button type="button" class="word" data-word="her">her</button> <button type="button" class="word" data-word="students">students</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="interview">interview</button> <button type="button" class="word" data-word="parents">parents</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="grandparents">grandparents</button> <button type="button" class="word" data-word="about">about</button> <button type="button" class="word" data-word="their">their</button> <button type="button" class="word" data-word="memories">memories</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="Mingxing">Mingxing</button> <button type="button" class="word" data-word="Theater">Theater</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p03-s03"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="assignment">assignment</button> <button type="button" class="word" data-word="produced">produced</button> <button type="button" class="word" data-word="far">far</button> <button type="button" class="word" data-word="more">more</button> <button type="button" class="word" data-word="than">than</button> <button type="button" class="word" data-word="homework">homework</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p03-s04"><button type="button" class="word" data-word="One">One</button> <button type="button" class="word" data-word="grandfather">grandfather</button> <button type="button" class="word" data-word="remembered">remembered</button> <button type="button" class="word" data-word="watching">watching</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="historical">historical</button> <button type="button" class="word" data-word="epic">epic</button> <button type="button" class="word" data-word="there">there</button> <button type="button" class="word" data-word="in">in</button> 1971 <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="deciding">deciding</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="become">become</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="history">history</button> <button type="button" class="word" data-word="teacher">teacher</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p03-s05"><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="mother">mother</button> <button type="button" class="word" data-word="described">described</button> <button type="button" class="word" data-word="how">how</button> <button type="button" class="word" data-word="she">she</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="hidden">hidden</button> <button type="button" class="word" data-word="her">her</button> <button type="button" class="word" data-word="report">report</button> <button type="button" class="word" data-word="card">card</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="her">her</button> <button type="button" class="word" data-word="bag">bag</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="watched">watched</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="romantic">romantic</button> <button type="button" class="word" data-word="comedy">comedy</button> <button type="button" class="word" data-word="before">before</button> <button type="button" class="word" data-word="showing">showing</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="her">her</button> <button type="button" class="word" data-word="parents">parents</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p03-s06"><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="shop">shop</button> <button type="button" class="word" data-word="owner">owner</button> <button type="button" class="word" data-word="across">across</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="street">street</button> <button type="button" class="word" data-word="said">said</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="theater">theater</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="once">once</button> <button type="button" class="word" data-word="kept">kept</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="whole">whole</button> <button type="button" class="word" data-word="neighborhood">neighborhood</button> <button type="button" class="word" data-word="alive">alive</button>: <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="bought">bought</button> <button type="button" class="word" data-word="noodles">noodles</button> <button type="button" class="word" data-word="before">before</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="movie">movie</button>, <button type="button" class="word" data-word="tea">tea</button> <button type="button" class="word" data-word="after">after</button> <button type="button" class="word" data-word="it">it</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="snacks">snacks</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="take">take</button> <button type="button" class="word" data-word="home">home</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p03-s07"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="students">students</button> <button type="button" class="word" data-word="turned">turned</button> <button type="button" class="word" data-word="these">these</button> <button type="button" class="word" data-word="stories">stories</button> <button type="button" class="word" data-word="into">into</button> <button type="button" class="word" data-word="short">short</button> <button type="button" class="word" data-word="videos">videos</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="within">within</button> <button type="button" class="word" data-word="days">days</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="campaign">campaign</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="gained">gained</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="attention">attention</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p03-s01">當地一位高中老師吳老師認為，只有悲傷並沒有幫助。</span> <span class="lesson-sentence sentence-zh" data-pair="p03-s02">她請學生訪問父母與祖父母，詢問他們對明星戲院的回憶。</span> <span class="lesson-sentence sentence-zh" data-pair="p03-s03">這項作業帶來的遠遠不只是家庭功課。</span> <span class="lesson-sentence sentence-zh" data-pair="p03-s04">一位爺爺記得自己在 1971 年於那裡看了一部歷史史詩片，之後決定成為歷史老師；</span> <span class="lesson-sentence sentence-zh" data-pair="p03-s05">一位母親則描述，她曾把成績單藏在包包裡，先去看一部愛情喜劇，才敢回家給父母看。</span> <span class="lesson-sentence sentence-zh" data-pair="p03-s06">街對面的店主說，戲院曾經讓整個街區都充滿活力：人們看電影前買麵，看完後喝茶，還會帶點心回家。</span> <span class="lesson-sentence sentence-zh" data-pair="p03-s07">學生把這些故事做成短影片，幾天之內，這場行動就在地方上引起了關注。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p04-s01"><button type="button" class="word" data-word="What">What</button> <button type="button" class="word" data-word="happened">happened</button> <button type="button" class="word" data-word="next">next</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="miracle">miracle</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p04-s02"><button type="button" class="word" data-word="No">No</button> <button type="button" class="word" data-word="rich">rich</button> <button type="button" class="word" data-word="investor">investor</button> <button type="button" class="word" data-word="arrived">arrived</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="black">black</button> <button type="button" class="word" data-word="car">car</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="no">no</button> <button type="button" class="word" data-word="famous">famous</button> <button type="button" class="word" data-word="actor">actor</button> <button type="button" class="word" data-word="promised">promised</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="save">save</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="building">building</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p04-s03"><button type="button" class="word" data-word="Instead">Instead</button>, <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="town">town</button> <button type="button" class="word" data-word="faced">faced</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="practical">practical</button> <button type="button" class="word" data-word="question">question</button>: <button type="button" class="word" data-word="if">if</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="mattered">mattered</button>, <button type="button" class="word" data-word="how">how</button> <button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="survive">survive</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="different">different</button> <button type="button" class="word" data-word="age">age</button>?</span> <span class="lesson-sentence sentence-en" data-pair="p04-s04"><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="group">group</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="volunteers">volunteers</button>, <button type="button" class="word" data-word="small">small</button> <button type="button" class="word" data-word="business">business</button> <button type="button" class="word" data-word="owners">owners</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="retired">retired</button> <button type="button" class="word" data-word="engineers">engineers</button> <button type="button" class="word" data-word="met">met</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="theater">theater</button> <button type="button" class="word" data-word="lobby">lobby</button> <button type="button" class="word" data-word="one">one</button> <button type="button" class="word" data-word="Saturday">Saturday</button> <button type="button" class="word" data-word="morning">morning</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p04-s05"><button type="button" class="word" data-word="They">They</button> <button type="button" class="word" data-word="studied">studied</button> <button type="button" class="word" data-word="electricity">electricity</button> <button type="button" class="word" data-word="bills">bills</button>, <button type="button" class="word" data-word="repair">repair</button> <button type="button" class="word" data-word="costs">costs</button>, <button type="button" class="word" data-word="ticket">ticket</button> <button type="button" class="word" data-word="prices">prices</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="audience">audience</button> <button type="button" class="word" data-word="habits">habits</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p04-s06"><button type="button" class="word" data-word="Their">Their</button> <button type="button" class="word" data-word="conclusion">conclusion</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="blunt">blunt</button> <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="encouraging">encouraging</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p04-s07"><button type="button" class="word" data-word="Mingxing">Mingxing</button> <button type="button" class="word" data-word="Theater">Theater</button> <button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="live">live</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="competing">competing</button> <button type="button" class="word" data-word="with">with</button> <button type="button" class="word" data-word="giant">giant</button> <button type="button" class="word" data-word="multiplexes">multiplexes</button> <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="home">home</button> <button type="button" class="word" data-word="streaming">streaming</button> <button type="button" class="word" data-word="services">services</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p04-s08"><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="offer">offer</button> <button type="button" class="word" data-word="something">something</button> <button type="button" class="word" data-word="those">those</button> <button type="button" class="word" data-word="systems">systems</button> <button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="easily">easily</button> <button type="button" class="word" data-word="provide">provide</button>: <button type="button" class="word" data-word="community">community</button>, <button type="button" class="word" data-word="character">character</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="reason">reason</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="leave">leave</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="sofa">sofa</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p04-s01">接下來發生的事並不是奇蹟。</span> <span class="lesson-sentence sentence-zh" data-pair="p04-s02">沒有坐著黑色轎車的富有投資人出現，也沒有知名演員承諾拯救這棟建築。</span> <span class="lesson-sentence sentence-zh" data-pair="p04-s03">相反地，小鎮面對的是一個很實際的問題：如果這家戲院真的重要，它要如何在不同的時代存活下來？</span> <span class="lesson-sentence sentence-zh" data-pair="p04-s04">某個星期六早上，一群志工、小店老闆和退休工程師在戲院大廳開會。</span> <span class="lesson-sentence sentence-zh" data-pair="p04-s05">他們研究電費、維修成本、票價，以及觀眾的觀影習慣。</span> <span class="lesson-sentence sentence-zh" data-pair="p04-s06">他們的結論很直接，但也令人振奮。</span> <span class="lesson-sentence sentence-zh" data-pair="p04-s07">明星戲院不能靠和大型影城或家庭串流競爭來生存；</span> <span class="lesson-sentence sentence-zh" data-pair="p04-s08">它必須提供那些系統不容易給出的東西：社群感、個性，以及一個讓人願意離開沙發的理由。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p05-s01"><button type="button" class="word" data-word="So">So</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="redesigned">redesigned</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="theater">theater</button> <button type="button" class="word" data-word="without">without</button> <button type="button" class="word" data-word="erasing">erasing</button> <button type="button" class="word" data-word="its">its</button> <button type="button" class="word" data-word="soul">soul</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p05-s02"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="oldest">oldest</button> <button type="button" class="word" data-word="red">red</button> <button type="button" class="word" data-word="seats">seats</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="repaired">repaired</button> <button type="button" class="word" data-word="rather">rather</button> <button type="button" class="word" data-word="than">than</button> <button type="button" class="word" data-word="thrown">thrown</button> <button type="button" class="word" data-word="away">away</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p05-s03"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="faded">faded</button> <button type="button" class="word" data-word="wall">wall</button> <button type="button" class="word" data-word="posters">posters</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="cleaned">cleaned</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="framed">framed</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p05-s04"><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="new">new</button> <button type="button" class="word" data-word="digital">digital</button> <button type="button" class="word" data-word="projector">projector</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="installed">installed</button>, <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="old">old</button> <button type="button" class="word" data-word="manual">manual</button> <button type="button" class="word" data-word="ticket">ticket</button> <button type="button" class="word" data-word="machine">machine</button> <button type="button" class="word" data-word="remained">remained</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="entrance">entrance</button> <button type="button" class="word" data-word="as">as</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="small">small</button> <button type="button" class="word" data-word="museum">museum</button> <button type="button" class="word" data-word="piece">piece</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p05-s05"><button type="button" class="word" data-word="Instead">Instead</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="showing">showing</button> <button type="button" class="word" data-word="only">only</button> <button type="button" class="word" data-word="mainstream">mainstream</button> <button type="button" class="word" data-word="releases">releases</button>, <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="began">began</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="host">host</button> <button type="button" class="word" data-word="themed">themed</button> <button type="button" class="word" data-word="nights">nights</button>: <button type="button" class="word" data-word="classic">classic</button> <button type="button" class="word" data-word="martial">martial</button> <button type="button" class="word" data-word="arts">arts</button> <button type="button" class="word" data-word="films">films</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="Fridays">Fridays</button>, <button type="button" class="word" data-word="family">family</button> <button type="button" class="word" data-word="animation">animation</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="Sunday">Sunday</button> <button type="button" class="word" data-word="afternoons">afternoons</button>, <button type="button" class="word" data-word="documentaries">documentaries</button> <button type="button" class="word" data-word="followed">followed</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="discussions">discussions</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="student">student</button> <button type="button" class="word" data-word="short">short</button> <button type="button" class="word" data-word="films">films</button> <button type="button" class="word" data-word="once">once</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="month">month</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p05-s06"><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="nearby">nearby</button> <button type="button" class="word" data-word="bakery">bakery</button> <button type="button" class="word" data-word="even">even</button> <button type="button" class="word" data-word="created">created</button> <button type="button" class="word" data-word="a">a</button> “<button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="bread">bread</button> <button type="button" class="word" data-word="set">set</button>,” <button type="button" class="word" data-word="because">because</button> <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="said">said</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="smell">smell</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="fresh">fresh</button> <button type="button" class="word" data-word="bread">bread</button> <button type="button" class="word" data-word="made">made</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="street">street</button> <button type="button" class="word" data-word="feel">feel</button> <button type="button" class="word" data-word="festive">festive</button> <button type="button" class="word" data-word="again">again</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p05-s07"><button type="button" class="word" data-word="Bit">Bit</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="bit">bit</button>, <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="building">building</button> <button type="button" class="word" data-word="stopped">stopped</button> <button type="button" class="word" data-word="looking">looking</button> <button type="button" class="word" data-word="like">like</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="business">business</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="dying">dying</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="started">started</button> <button type="button" class="word" data-word="looking">looking</button> <button type="button" class="word" data-word="like">like</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="place">place</button> <button type="button" class="word" data-word="with">with</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="future">future</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p05-s01">於是他們重新設計這家戲院，同時沒有抹去它的靈魂。</span> <span class="lesson-sentence sentence-zh" data-pair="p05-s02">最老的紅色座椅被修好，而不是丟掉；</span> <span class="lesson-sentence sentence-zh" data-pair="p05-s03">褪色的牆上海報被清潔後裱框；</span> <span class="lesson-sentence sentence-zh" data-pair="p05-s04">新的數位放映機被安裝上去，但舊式手動售票機仍留在入口處，成為一件小小的展示品。</span> <span class="lesson-sentence sentence-zh" data-pair="p05-s05">戲院不再只播主流新片，而是開始舉辦主題夜：星期五放經典武俠片、星期日下午播家庭動畫、紀錄片映後舉辦地方討論，每個月還有一次學生短片之夜。</span> <span class="lesson-sentence sentence-zh" data-pair="p05-s06">附近的麵包店甚至推出了「戲院麵包組」，因為大家說，新鮮麵包的香味又讓整條街有了節慶感。</span> <span class="lesson-sentence sentence-zh" data-pair="p05-s07">慢慢地，這棟建築不再像一門快要死去的生意，而開始像一個擁有未來的地方。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p06-s01"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="most">most</button> <button type="button" class="word" data-word="surprising">surprising</button> <button type="button" class="word" data-word="change">change</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="financial">financial</button> <button type="button" class="word" data-word="at">at</button> <button type="button" class="word" data-word="first">first</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p06-s01"><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="emotional">emotional</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p06-s02"><button type="button" class="word" data-word="Teenagers">Teenagers</button> <button type="button" class="word" data-word="who">who</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="assumed">assumed</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="was">was</button> “<button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="old">old</button> <button type="button" class="word" data-word="people">people</button>” <button type="button" class="word" data-word="started">started</button> <button type="button" class="word" data-word="going">going</button> <button type="button" class="word" data-word="there">there</button> <button type="button" class="word" data-word="because">because</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="events">events</button> <button type="button" class="word" data-word="felt">felt</button> <button type="button" class="word" data-word="personal">personal</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p06-s03"><button type="button" class="word" data-word="Elderly">Elderly</button> <button type="button" class="word" data-word="residents">residents</button> <button type="button" class="word" data-word="who">who</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="nervous">nervous</button> <button type="button" class="word" data-word="about">about</button> <button type="button" class="word" data-word="online">online</button> <button type="button" class="word" data-word="booking">booking</button> <button type="button" class="word" data-word="felt">felt</button> <button type="button" class="word" data-word="relieved">relieved</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="still">still</button> <button type="button" class="word" data-word="buy">buy</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="paper">paper</button> <button type="button" class="word" data-word="ticket">ticket</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="talk">talk</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="real">real</button> <button type="button" class="word" data-word="person">person</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p06-s04"><button type="button" class="word" data-word="Parents">Parents</button> <button type="button" class="word" data-word="appreciated">appreciated</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="theater">theater</button> <button type="button" class="word" data-word="lights">lights</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="too">too</button> <button type="button" class="word" data-word="harsh">harsh</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="hall">hall</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="small">small</button> <button type="button" class="word" data-word="enough">enough</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="young">young</button> <button type="button" class="word" data-word="children">children</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="feel">feel</button> <button type="button" class="word" data-word="safe">safe</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p06-s05"><button type="button" class="word" data-word="In">In</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="larger">larger</button> <button type="button" class="word" data-word="city">city</button>, <button type="button" class="word" data-word="these">these</button> <button type="button" class="word" data-word="details">details</button> <button type="button" class="word" data-word="might">might</button> <button type="button" class="word" data-word="seem">seem</button> <button type="button" class="word" data-word="minor">minor</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p06-s06"><button type="button" class="word" data-word="In">In</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="small">small</button> <button type="button" class="word" data-word="town">town</button>, <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="formed">formed</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="difference">difference</button> <button type="button" class="word" data-word="between">between</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="service">service</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="relationship">relationship</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p06-s07"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="no">no</button> <button type="button" class="word" data-word="longer">longer</button> <button type="button" class="word" data-word="merely">merely</button> <button type="button" class="word" data-word="selling">selling</button> <button type="button" class="word" data-word="entertainment">entertainment</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p06-s07"><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="rebuilding">rebuilding</button> <button type="button" class="word" data-word="trust">trust</button> <button type="button" class="word" data-word="between">between</button> <button type="button" class="word" data-word="neighbors">neighbors</button> <button type="button" class="word" data-word="who">who</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="become">become</button> <button type="button" class="word" data-word="used">used</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="staying">staying</button> <button type="button" class="word" data-word="apart">apart</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p06-s01">最令人驚訝的改變，一開始其實不是財務上的，而是情感上的。</span> <span class="lesson-sentence sentence-zh" data-pair="p06-s02">原本以為戲院「是給老人去的」青少年開始走進來，因為這些活動有很強的在地感；</span> <span class="lesson-sentence sentence-zh" data-pair="p06-s03">不熟悉網路訂票的年長居民則鬆了一口氣，因為他們仍然可以買紙本票，跟真人說話。</span> <span class="lesson-sentence sentence-zh" data-pair="p06-s04">家長也很欣賞這裡的燈光不會太刺眼，放映廳又夠小，讓年幼孩子感到安全。</span> <span class="lesson-sentence sentence-zh" data-pair="p06-s05">在大城市裡，這些細節也許看起來很小；</span> <span class="lesson-sentence sentence-zh" data-pair="p06-s06">但在小鎮中，它們正好構成了「服務」與「關係」之間的差別。</span> <span class="lesson-sentence sentence-zh" data-pair="p06-s07">這家戲院不再只是販售娛樂，它正在重新建立那些早已習慣彼此疏離的鄰居之間的信任。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p07-s01"><button type="button" class="word" data-word="Within">Within</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="year">year</button>, <button type="button" class="word" data-word="Mingxing">Mingxing</button> <button type="button" class="word" data-word="Theater">Theater</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="making">making</button> <button type="button" class="word" data-word="huge">huge</button> <button type="button" class="word" data-word="profits">profits</button>, <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="stable">stable</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p07-s02"><button type="button" class="word" data-word="Stability">Stability</button>, <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="case">case</button>, <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="kind">kind</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="victory">victory</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p07-s03"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="volunteers">volunteers</button> <button type="button" class="word" data-word="learned">learned</button> <button type="button" class="word" data-word="an">an</button> <button type="button" class="word" data-word="important">important</button> <button type="button" class="word" data-word="lesson">lesson</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="many">many</button> <button type="button" class="word" data-word="modern">modern</button> <button type="button" class="word" data-word="businesses">businesses</button> <button type="button" class="word" data-word="forget">forget</button>: <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="always">always</button> <button type="button" class="word" data-word="searching">searching</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cheapest">cheapest</button> <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="fastest">fastest</button> <button type="button" class="word" data-word="option">option</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p07-s04"><button type="button" class="word" data-word="They">They</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="often">often</button> <button type="button" class="word" data-word="searching">searching</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="meaning">meaning</button>, <button type="button" class="word" data-word="even">even</button> <button type="button" class="word" data-word="if">if</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="do">do</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="use">use</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="word">word</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p07-s05"><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="place">place</button> <button type="button" class="word" data-word="becomes">becomes</button> <button type="button" class="word" data-word="valuable">valuable</button> <button type="button" class="word" data-word="when">when</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="allows">allows</button> <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="feel">feel</button> <button type="button" class="word" data-word="seen">seen</button>, <button type="button" class="word" data-word="remembered">remembered</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="connected">connected</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p07-s06"><button type="button" class="word" data-word="Digital">Digital</button> <button type="button" class="word" data-word="convenience">convenience</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="powerful">powerful</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="few">few</button> <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="would">would</button> <button type="button" class="word" data-word="seriously">seriously</button> <button type="button" class="word" data-word="argue">argue</button> <button type="button" class="word" data-word="against">against</button> <button type="button" class="word" data-word="it">it</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p07-s07"><button type="button" class="word" data-word="Yet">Yet</button> <button type="button" class="word" data-word="convenience">convenience</button> <button type="button" class="word" data-word="alone">alone</button> <button type="button" class="word" data-word="rarely">rarely</button> <button type="button" class="word" data-word="becomes">becomes</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="cherished">cherished</button> <button type="button" class="word" data-word="memory">memory</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p07-s08"><button type="button" class="word" data-word="Nobody">Nobody</button> <button type="button" class="word" data-word="tells">tells</button> <button type="button" class="word" data-word="their">their</button> <button type="button" class="word" data-word="grandchildren">grandchildren</button>, <button type="button" class="word" data-word="with">with</button> <button type="button" class="word" data-word="shining">shining</button> <button type="button" class="word" data-word="eyes">eyes</button>, <button type="button" class="word" data-word="about">about</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="time">time</button> <button type="button" class="word" data-word="an">an</button> <button type="button" class="word" data-word="algorithm">algorithm</button> <button type="button" class="word" data-word="recommended">recommended</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="film">film</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="rainy">rainy</button> <button type="button" class="word" data-word="Tuesday">Tuesday</button> <button type="button" class="word" data-word="night">night</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p07-s01">一年之內，明星戲院雖然沒有賺進龐大利潤，卻已經穩定下來。</span> <span class="lesson-sentence sentence-zh" data-pair="p07-s02">在這裡，穩定本身就是一種勝利。</span> <span class="lesson-sentence sentence-zh" data-pair="p07-s03">志工們學到一個許多現代企業都忘記的重要道理：人們不一定總是在找最便宜或最快的選擇；</span> <span class="lesson-sentence sentence-zh" data-pair="p07-s04">很多時候，他們其實是在尋找意義，即使他們不會直接使用這個詞。</span> <span class="lesson-sentence sentence-zh" data-pair="p07-s05">當一個地方讓人感到自己被看見、被記得、與他人有所連結時，它就會變得有價值。</span> <span class="lesson-sentence sentence-zh" data-pair="p07-s06">數位便利的力量當然很大，也很少有人會真的反對它；</span> <span class="lesson-sentence sentence-zh" data-pair="p07-s07">然而，只有便利，通常不會成為被珍惜的回憶。</span> <span class="lesson-sentence sentence-zh" data-pair="p07-s08">沒有人會眼神發亮地對孫子說，某個下雨的星期二晚上，一個演算法推薦了一部電影給自己，那是多麼難忘的時刻。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p08-s01"><button type="button" class="word" data-word="There">There</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="also">also</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="wider">wider</button> <button type="button" class="word" data-word="lesson">lesson</button> <button type="button" class="word" data-word="here">here</button> <button type="button" class="word" data-word="about">about</button> <button type="button" class="word" data-word="preservation">preservation</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p08-s02"><button type="button" class="word" data-word="Saving">Saving</button> <button type="button" class="word" data-word="old">old</button> <button type="button" class="word" data-word="things">things</button> <button type="button" class="word" data-word="does">does</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="mean">mean</button> <button type="button" class="word" data-word="rejecting">rejecting</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="new">new</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p08-s02"><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="means">means</button> <button type="button" class="word" data-word="asking">asking</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="better">better</button> <button type="button" class="word" data-word="question">question</button> <button type="button" class="word" data-word="than">than</button> “<button type="button" class="word" data-word="Is">Is</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="old">old</button>?”</span> <span class="lesson-sentence sentence-en" data-pair="p08-s03"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="better">better</button> <button type="button" class="word" data-word="question">question</button> <button type="button" class="word" data-word="is">is</button> “<button type="button" class="word" data-word="What">What</button> <button type="button" class="word" data-word="human">human</button> <button type="button" class="word" data-word="need">need</button> <button type="button" class="word" data-word="does">does</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="place">place</button> <button type="button" class="word" data-word="still">still</button> <button type="button" class="word" data-word="answer">answer</button>?”</span> <span class="lesson-sentence sentence-en" data-pair="p08-s04"><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="wooden">wooden</button> <button type="button" class="word" data-word="train">train</button> <button type="button" class="word" data-word="station">station</button>, <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="public">public</button> <button type="button" class="word" data-word="bathhouse">bathhouse</button>, <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="neighborhood">neighborhood</button> <button type="button" class="word" data-word="market">market</button>, <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="may">may</button> <button type="button" class="word" data-word="look">look</button> <button type="button" class="word" data-word="outdated">outdated</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="surface">surface</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p08-s05"><button type="button" class="word" data-word="But">But</button> <button type="button" class="word" data-word="if">if</button> <button type="button" class="word" data-word="such">such</button> <button type="button" class="word" data-word="places">places</button> <button type="button" class="word" data-word="still">still</button> <button type="button" class="word" data-word="create">create</button> <button type="button" class="word" data-word="belonging">belonging</button>, <button type="button" class="word" data-word="conversation">conversation</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="shared">shared</button> <button type="button" class="word" data-word="ritual">ritual</button>, <button type="button" class="word" data-word="then">then</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="remain">remain</button> <button type="button" class="word" data-word="relevant">relevant</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p08-s06"><button type="button" class="word" data-word="Tradition">Tradition</button> <button type="button" class="word" data-word="survives">survives</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="because">because</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="resists">resists</button> <button type="button" class="word" data-word="change">change</button>, <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="because">because</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="adapts">adapts</button> <button type="button" class="word" data-word="without">without</button> <button type="button" class="word" data-word="surrendering">surrendering</button> <button type="button" class="word" data-word="its">its</button> <button type="button" class="word" data-word="deepest">deepest</button> <button type="button" class="word" data-word="purpose">purpose</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p08-s06"><button type="button" class="word" data-word="That">That</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="much">much</button> <button type="button" class="word" data-word="harder">harder</button> <button type="button" class="word" data-word="than">than</button> <button type="button" class="word" data-word="simple">simple</button> <button type="button" class="word" data-word="nostalgia">nostalgia</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p08-s07"><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="requires">requires</button> <button type="button" class="word" data-word="imagination">imagination</button>, <button type="button" class="word" data-word="discipline">discipline</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="patient">patient</button> <button type="button" class="word" data-word="work">work</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p08-s01">這個故事其實也帶來了一個更廣泛的保存課題。</span> <span class="lesson-sentence sentence-zh" data-pair="p08-s02">拯救老東西，並不代表拒絕新事物；</span> <span class="lesson-sentence sentence-zh" data-pair="p08-s03">它代表我們願意問一個比「這東西老不老？」更好的問題。</span> <span class="lesson-sentence sentence-zh" data-pair="p08-s04">更好的問題是：「這個地方現在仍然回應了什麼人類需求？」木造車站、大眾澡堂、社區市場或在地戲院，表面上看來或許都過時了；</span> <span class="lesson-sentence sentence-zh" data-pair="p08-s05">但如果這些地方仍能創造歸屬感、對話與共同儀式，那它們就依然具有意義。</span> <span class="lesson-sentence sentence-zh" data-pair="p08-s06">傳統之所以能活下來，不是因為它完全抗拒改變，而是因為它能適應改變，同時不放棄自己最深層的目的。</span> <span class="lesson-sentence sentence-zh" data-pair="p08-s07">這比單純的懷舊困難得多，它需要想像力、紀律，以及耐心的工作。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p09-s01"><button type="button" class="word" data-word="One">One</button> <button type="button" class="word" data-word="evening">evening</button>, <button type="button" class="word" data-word="nearly">nearly</button> <button type="button" class="word" data-word="eighteen">eighteen</button> <button type="button" class="word" data-word="months">months</button> <button type="button" class="word" data-word="after">after</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="handwritten">handwritten</button> <button type="button" class="word" data-word="notice">notice</button> <button type="button" class="word" data-word="first">first</button> <button type="button" class="word" data-word="appeared">appeared</button>, <button type="button" class="word" data-word="Mr">Mr</button>. <button type="button" class="word" data-word="Lin">Lin</button> <button type="button" class="word" data-word="stood">stood</button> <button type="button" class="word" data-word="at">at</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="back">back</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="hall">hall</button> <button type="button" class="word" data-word="during">during</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="sold-out">sold-out</button> <button type="button" class="word" data-word="screening">screening</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="an">an</button> <button type="button" class="word" data-word="old">old</button> <button type="button" class="word" data-word="Taiwanese">Taiwanese</button> <button type="button" class="word" data-word="comedy">comedy</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p09-s02"><button type="button" class="word" data-word="He">He</button> <button type="button" class="word" data-word="watched">watched</button> <button type="button" class="word" data-word="teenagers">teenagers</button> <button type="button" class="word" data-word="laugh">laugh</button> <button type="button" class="word" data-word="at">at</button> <button type="button" class="word" data-word="jokes">jokes</button> <button type="button" class="word" data-word="written">written</button> <button type="button" class="word" data-word="decades">decades</button> <button type="button" class="word" data-word="before">before</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="born">born</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p09-s03"><button type="button" class="word" data-word="He">He</button> <button type="button" class="word" data-word="watched">watched</button> <button type="button" class="word" data-word="grandparents">grandparents</button> <button type="button" class="word" data-word="explain">explain</button> <button type="button" class="word" data-word="quiet">quiet</button> <button type="button" class="word" data-word="details">details</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="children">children</button> <button type="button" class="word" data-word="sitting">sitting</button> <button type="button" class="word" data-word="beside">beside</button> <button type="button" class="word" data-word="them">them</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p09-s04"><button type="button" class="word" data-word="He">He</button> <button type="button" class="word" data-word="watched">watched</button> <button type="button" class="word" data-word="strangers">strangers</button> <button type="button" class="word" data-word="share">share</button> <button type="button" class="word" data-word="sunflower">sunflower</button> <button type="button" class="word" data-word="seeds">seeds</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="comment">comment</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="scenes">scenes</button> <button type="button" class="word" data-word="as">as</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="lights">lights</button> <button type="button" class="word" data-word="dimmed">dimmed</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p09-s05"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="room">room</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="imperfect">imperfect</button>, <button type="button" class="word" data-word="slightly">slightly</button> <button type="button" class="word" data-word="noisy">noisy</button>, <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="wonderfully">wonderfully</button> <button type="button" class="word" data-word="alive">alive</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p09-s06"><button type="button" class="word" data-word="If">If</button> <button type="button" class="word" data-word="someone">someone</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="asked">asked</button> <button type="button" class="word" data-word="whether">whether</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="town">town</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="saved">saved</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="whether">whether</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="saved">saved</button> <button type="button" class="word" data-word="something">something</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="town">town</button>, <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="answer">answer</button> <button type="button" class="word" data-word="would">would</button> <button type="button" class="word" data-word="have">have</button> <button type="button" class="word" data-word="been">been</button> <button type="button" class="word" data-word="difficult">difficult</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="separate">separate</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p09-s07"><button type="button" class="word" data-word="Perhaps">Perhaps</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="secret">secret</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="places">places</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="truly">truly</button> <button type="button" class="word" data-word="matter">matter</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p09-s08"><button type="button" class="word" data-word="They">They</button> <button type="button" class="word" data-word="keep">keep</button> <button type="button" class="word" data-word="us">us</button> <button type="button" class="word" data-word="entertained">entertained</button>, <button type="button" class="word" data-word="yes">yes</button>, <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="also">also</button> <button type="button" class="word" data-word="keep">keep</button> <button type="button" class="word" data-word="us">us</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="relation">relation</button> <button type="button" class="word" data-word="with">with</button> <button type="button" class="word" data-word="one">one</button> <button type="button" class="word" data-word="another">another</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p09-s01">在那張手寫告示首次出現約十八個月後的一個晚上，林先生站在一場滿座的台灣老喜劇放映廳後方。</span> <span class="lesson-sentence sentence-zh" data-pair="p09-s02">他看著青少年為那些在自己出生前幾十年就寫好的笑點大笑；</span> <span class="lesson-sentence sentence-zh" data-pair="p09-s03">他看著祖父母對身旁的孩子輕聲解釋片中的細節；</span> <span class="lesson-sentence sentence-zh" data-pair="p09-s04">他看著陌生人分享瓜子，在燈光漸暗時低聲討論場景。</span> <span class="lesson-sentence sentence-zh" data-pair="p09-s05">那個空間並不完美，甚至有點吵，卻充滿活力。</span> <span class="lesson-sentence sentence-zh" data-pair="p09-s06">如果有人問，到底是小鎮拯救了戲院，還是戲院拯救了小鎮裡的某些東西，答案恐怕很難分開。</span> <span class="lesson-sentence sentence-zh" data-pair="p09-s07">也許，這正是真正重要的地方之所以珍貴的秘密。</span> <span class="lesson-sentence sentence-zh" data-pair="p09-s08">它們不只讓我們得到娛樂，也讓我們持續與彼此保持關係。</span></p>
+</div>
+<div class="paragraph-pair">
+<p class="article-paragraph english"><span class="lesson-sentence sentence-en" data-pair="p10-s01"><button type="button" class="word" data-word="For">For</button> <button type="button" class="word" data-word="learners">learners</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="English">English</button>, <button type="button" class="word" data-word="stories">stories</button> <button type="button" class="word" data-word="like">like</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="matter">matter</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="another">another</button> <button type="button" class="word" data-word="reason">reason</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p10-s02"><button type="button" class="word" data-word="They">They</button> <button type="button" class="word" data-word="show">show</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="language">language</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="just">just</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="tool">tool</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="tests">tests</button> <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="business">business</button> <button type="button" class="word" data-word="emails">emails</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p10-s03"><button type="button" class="word" data-word="Language">Language</button> <button type="button" class="word" data-word="helps">helps</button> <button type="button" class="word" data-word="us">us</button> <button type="button" class="word" data-word="notice">notice</button> <button type="button" class="word" data-word="what">what</button> <button type="button" class="word" data-word="kind">kind</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="world">world</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="building">building</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p10-s04"><button type="button" class="word" data-word="When">When</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="describe">describe</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="town">town</button> <button type="button" class="word" data-word="as">as</button> “<button type="button" class="word" data-word="developing">developing</button>,” <button type="button" class="word" data-word="do">do</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="mean">mean</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="growing">growing</button> <button type="button" class="word" data-word="richer">richer</button>, <button type="button" class="word" data-word="growing">growing</button> <button type="button" class="word" data-word="kinder">kinder</button>, <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="merely">merely</button> <button type="button" class="word" data-word="growing">growing</button> <button type="button" class="word" data-word="newer">newer</button>?</span> <span class="lesson-sentence sentence-en" data-pair="p10-s05"><button type="button" class="word" data-word="When">When</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="call">call</button> <button type="button" class="word" data-word="something">something</button> “<button type="button" class="word" data-word="efficient">efficient</button>,” <button type="button" class="word" data-word="do">do</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="mean">mean</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="saves">saves</button> <button type="button" class="word" data-word="time">time</button>, <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="do">do</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="mean">mean</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="quietly">quietly</button> <button type="button" class="word" data-word="removes">removes</button> <button type="button" class="word" data-word="human">human</button> <button type="button" class="word" data-word="contact">contact</button>?</span> <span class="lesson-sentence sentence-en" data-pair="p10-s06"><button type="button" class="word" data-word="Good">Good</button> <button type="button" class="word" data-word="reading">reading</button> <button type="button" class="word" data-word="pushes">pushes</button> <button type="button" class="word" data-word="us">us</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="ask">ask</button> <button type="button" class="word" data-word="such">such</button> <button type="button" class="word" data-word="questions">questions</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p10-s06"><button type="button" class="word" data-word="Good">Good</button> <button type="button" class="word" data-word="writing">writing</button> <button type="button" class="word" data-word="does">does</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="same">same</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p10-s07"><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="future">future</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="made">made</button> <button type="button" class="word" data-word="only">only</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="technology">technology</button> <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="money">money</button>.</span> <span class="lesson-sentence sentence-en" data-pair="p10-s07"><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="also">also</button> <button type="button" class="word" data-word="made">made</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="words">words</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="choose">choose</button> <button type="button" class="word" data-word="when">when</button> <button type="button" class="word" data-word="deciding">deciding</button> <button type="button" class="word" data-word="what">what</button> <button type="button" class="word" data-word="deserves">deserves</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="stay">stay</button>.</span></p>
+<p class="article-paragraph chinese"><span class="lesson-sentence sentence-zh" data-pair="p10-s01">對英文學習者來說，這樣的故事還有另一層重要性。</span> <span class="lesson-sentence sentence-zh" data-pair="p10-s02">它提醒我們，語言不只是考試工具，也不只是商務郵件的媒介。</span> <span class="lesson-sentence sentence-zh" data-pair="p10-s03">語言會幫助我們看見：我們究竟正在打造什麼樣的世界。</span> <span class="lesson-sentence sentence-zh" data-pair="p10-s04">當我們說一個城鎮正在「發展」時，我們指的是它變得更富有、更友善，還是只是更新而已？</span> <span class="lesson-sentence sentence-zh" data-pair="p10-s05">當我們說某件事「有效率」時，我們是指它節省時間，還是它悄悄移除了人與人之間的接觸？</span> <span class="lesson-sentence sentence-zh" data-pair="p10-s06">好的閱讀會推動我們去問這些問題，好的寫作也是一樣。</span> <span class="lesson-sentence sentence-zh" data-pair="p10-s07">未來不只由科技與金錢塑造，也由我們在決定什麼值得留下時所選擇的語言來塑造。</span></p>
+</div>
+</div>
+
+</section>
+<section class="lesson-prose">
+<h2><button type="button" class="word" data-word="Vocabulary">Vocabulary</button></h2>
+<ol class="vocab-list">
+<li><strong><button type="button" class="word" data-word="practical">practical</button></strong> <span class="ipa">/ˈpræk.tɪ.kəl/</span> <span class="part-of-speech">形容詞</span>
+<ul>
+<li>實際的；務實的</li>
+<li>適合形容方法、計畫或決定重視可行性，而不是只追求理想。</li>
+<li><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="practical">practical</button> <button type="button" class="word" data-word="solution">solution</button> <button type="button" class="word" data-word="can">can</button> <button type="button" class="word" data-word="be">be</button> <button type="button" class="word" data-word="more">more</button> <button type="button" class="word" data-word="helpful">helpful</button> <button type="button" class="word" data-word="than">than</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="perfect">perfect</button> <button type="button" class="word" data-word="one">one</button>.</li>
+<li>一個實際的解決方法可能比完美的解決方法更有幫助。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="unavoidable">unavoidable</button></strong> <span class="ipa">/ˌʌn.əˈvɔɪ.də.bəl/</span> <span class="part-of-speech">形容詞</span>
+<ul>
+<li>無法避免的</li>
+<li>用來描述即使不喜歡，也很難阻止或逃開的結果、改變或問題。</li>
+<li><button type="button" class="word" data-word="Some">Some</button> <button type="button" class="word" data-word="changes">changes</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="life">life</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="unavoidable">unavoidable</button>, <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="can">can</button> <button type="button" class="word" data-word="still">still</button> <button type="button" class="word" data-word="respond">respond</button> <button type="button" class="word" data-word="wisely">wisely</button>.</li>
+<li>人生有些改變無法避免，但我們仍然可以明智地回應。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="assignment">assignment</button></strong> <span class="ipa">/əˈsaɪn.mənt/</span> <span class="part-of-speech">名詞</span>
+<ul>
+<li>作業；任務</li>
+<li>常用在學校或工作情境，指被指定要完成的事情。</li>
+<li><button type="button" class="word" data-word="Our">Our</button> <button type="button" class="word" data-word="English">English</button> <button type="button" class="word" data-word="assignment">assignment</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="week">week</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="write">write</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="short">short</button> <button type="button" class="word" data-word="reflection">reflection</button>.</li>
+<li>我們這週的英文作業是寫一篇短反思。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="campaign">campaign</button></strong> <span class="ipa">/kæmˈpeɪn/</span> <span class="part-of-speech">名詞</span>
+<ul>
+<li>宣傳行動；活動</li>
+<li>指為了達成某個目標而持續推動的一系列行動。</li>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="library">library</button> <button type="button" class="word" data-word="started">started</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="campaign">campaign</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="encourage">encourage</button> <button type="button" class="word" data-word="children">children</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="read">read</button>.</li>
+<li>圖書館發起了一項活動來鼓勵孩子閱讀。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="volunteer">volunteer</button></strong> <span class="ipa">/ˌvɑː.lənˈtɪr/</span> <span class="part-of-speech">名詞；動詞</span>
+<ul>
+<li>志工；自願做</li>
+<li>可指自願幫忙的人，也可表示主動提供時間或能力。</li>
+<li><button type="button" class="word" data-word="Every">Every</button> <button type="button" class="word" data-word="volunteer">volunteer</button> <button type="button" class="word" data-word="brought">brought</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="different">different</button> <button type="button" class="word" data-word="skill">skill</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="project">project</button>.</li>
+<li>每位志工都為這個計畫帶來不同的技能。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="compete">compete</button></strong> <span class="ipa">/kəmˈpiːt/</span> <span class="part-of-speech">動詞</span>
+<ul>
+<li>競爭</li>
+<li>用來描述人、商店、公司或想法之間爭取同一個目標。</li>
+<li><button type="button" class="word" data-word="Small">Small</button> <button type="button" class="word" data-word="shops">shops</button> <button type="button" class="word" data-word="cannot">cannot</button> <button type="button" class="word" data-word="always">always</button> <button type="button" class="word" data-word="compete">compete</button> <button type="button" class="word" data-word="on">on</button> <button type="button" class="word" data-word="price">price</button> <button type="button" class="word" data-word="alone">alone</button>.</li>
+<li>小店不一定能只靠價格競爭。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="festive">festive</button></strong> <span class="ipa">/ˈfes.tɪv/</span> <span class="part-of-speech">形容詞</span>
+<ul>
+<li>有節慶氣氛的</li>
+<li>用來形容街道、房間、活動或心情帶有慶祝感。</li>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="street">street</button> <button type="button" class="word" data-word="looked">looked</button> <button type="button" class="word" data-word="festive">festive</button> <button type="button" class="word" data-word="after">after</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="lanterns">lanterns</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="hung">hung</button> <button type="button" class="word" data-word="up">up</button>.</li>
+<li>燈籠掛起來後，整條街看起來很有節慶氣氛。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="harsh">harsh</button></strong> <span class="ipa">/hɑːrʃ/</span> <span class="part-of-speech">形容詞</span>
+<ul>
+<li>刺眼的；嚴厲的；粗糙不舒服的</li>
+<li>可形容光線、聲音、天氣、批評或態度讓人感到不舒服。</li>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="office">office</button> <button type="button" class="word" data-word="lights">lights</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="too">too</button> <button type="button" class="word" data-word="harsh">harsh</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="my">my</button> <button type="button" class="word" data-word="eyes">eyes</button>.</li>
+<li>辦公室的燈光對我的眼睛來說太刺眼了。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="stability">stability</button></strong> <span class="ipa">/stəˈbɪl.ə.ti/</span> <span class="part-of-speech">名詞</span>
+<ul>
+<li>穩定；安定</li>
+<li>常用來談財務、工作、家庭、制度或情緒是否穩固。</li>
+<li><button type="button" class="word" data-word="For">For</button> <button type="button" class="word" data-word="many">many</button> <button type="button" class="word" data-word="families">families</button>, <button type="button" class="word" data-word="stability">stability</button> <button type="button" class="word" data-word="matters">matters</button> <button type="button" class="word" data-word="more">more</button> <button type="button" class="word" data-word="than">than</button> <button type="button" class="word" data-word="excitement">excitement</button>.</li>
+<li>對許多家庭來說，穩定比刺激更重要。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="cherished">cherished</button></strong> <span class="ipa">/ˈtʃer.ɪʃt/</span> <span class="part-of-speech">形容詞</span>
+<ul>
+<li>珍愛的；珍惜的</li>
+<li>常形容記憶、物品、關係或傳統因情感價值而被重視。</li>
+<li><button type="button" class="word" data-word="That">That</button> <button type="button" class="word" data-word="old">old</button> <button type="button" class="word" data-word="photo">photo</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="one">one</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="my">my</button> <button type="button" class="word" data-word="most">most</button> <button type="button" class="word" data-word="cherished">cherished</button> <button type="button" class="word" data-word="possessions">possessions</button>.</li>
+<li>那張老照片是我最珍惜的物品之一。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="preservation">preservation</button></strong> <span class="ipa">/ˌprez.əˈveɪ.ʃən/</span> <span class="part-of-speech">名詞</span>
+<ul>
+<li>保存；保護</li>
+<li>常用於文化、歷史、自然環境或建築的保護。</li>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="museum">museum</button> <button type="button" class="word" data-word="works">works</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="preservation">preservation</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="history">history</button>.</li>
+<li>這間博物館致力於保存地方歷史。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="relevant">relevant</button></strong> <span class="ipa">/ˈrel.ə.vənt/</span> <span class="part-of-speech">形容詞</span>
+<ul>
+<li>相關的；仍有意義的</li>
+<li>用來表示某件事和現在的問題、生活或需求仍有連結。</li>
+<li><button type="button" class="word" data-word="Good">Good</button> <button type="button" class="word" data-word="teachers">teachers</button> <button type="button" class="word" data-word="make">make</button> <button type="button" class="word" data-word="old">old</button> <button type="button" class="word" data-word="ideas">ideas</button> <button type="button" class="word" data-word="relevant">relevant</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="modern">modern</button> <button type="button" class="word" data-word="life">life</button>.</li>
+<li>好的老師會讓舊觀念和現代生活產生關聯。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="discipline">discipline</button></strong> <span class="ipa">/ˈdɪs.ə.plɪn/</span> <span class="part-of-speech">名詞</span>
+<ul>
+<li>紀律；自我約束</li>
+<li>可指規範，也可指讓自己持續做正確事情的能力。</li>
+<li><button type="button" class="word" data-word="Learning">Learning</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="language">language</button> <button type="button" class="word" data-word="requires">requires</button> <button type="button" class="word" data-word="both">both</button> <button type="button" class="word" data-word="curiosity">curiosity</button> <button type="button" class="word" data-word="and">and</button> <button type="button" class="word" data-word="discipline">discipline</button>.</li>
+<li>學語言同時需要好奇心與紀律。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="efficient">efficient</button></strong> <span class="ipa">/ɪˈfɪʃ.ənt/</span> <span class="part-of-speech">形容詞</span>
+<ul>
+<li>有效率的</li>
+<li>形容方法、系統或人能用較少時間與資源完成事情。</li>
+<li><button type="button" class="word" data-word="This">This</button> <button type="button" class="word" data-word="app">app</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="efficient">efficient</button>, <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="does">does</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="feel">feel</button> <button type="button" class="word" data-word="very">very</button> <button type="button" class="word" data-word="personal">personal</button>.</li>
+<li>這個 App 很有效率，但感覺不太有人味。</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="deserve">deserve</button></strong> <span class="ipa">/dɪˈzɝːv/</span> <span class="part-of-speech">動詞</span>
+<ul>
+<li>值得；應得</li>
+<li>用來表示某人或某事因特質、行動或價值而應該得到某種對待。</li>
+<li><button type="button" class="word" data-word="Some">Some</button> <button type="button" class="word" data-word="traditions">traditions</button> <button type="button" class="word" data-word="deserve">deserve</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="second">second</button> <button type="button" class="word" data-word="chance">chance</button>.</li>
+<li>有些傳統值得再一次機會。</li>
+</ul>
+</li>
+</ol>
+<h2><button type="button" class="word" data-word="Grammar">Grammar</button></h2>
+<h3>1. <code><button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="been">been</button> <button type="button" class="word" data-word="open">open</button> <button type="button" class="word" data-word="since">since</button> ...</code></h3>
+<ul>
+<li>規則：過去完成進行或過去完成狀態可用來表達「在過去某時間之前已持續一段時間」。</li>
+<li>說明：文中 <code><button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="been">been</button> <button type="button" class="word" data-word="open">open</button> <button type="button" class="word" data-word="since">since</button> <button type="button" class="word" data-word="the">the</button> 1960s</code> 表示到故事中的某個過去時間點之前，戲院已經營業很久。</li>
+<li>文中例句：<button type="button" class="word" data-word="Its">Its</button> <button type="button" class="word" data-word="only">only</button> <button type="button" class="word" data-word="cinema">cinema</button>, <button type="button" class="word" data-word="Mingxing">Mingxing</button> <button type="button" class="word" data-word="Theater">Theater</button>, <strong><button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="been">been</button> <button type="button" class="word" data-word="open">open</button> <button type="button" class="word" data-word="since">since</button> <button type="button" class="word" data-word="the">the</button> 1960s</strong>.</li>
+<li>新例句：<button type="button" class="word" data-word="By">By</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="time">time</button> <button type="button" class="word" data-word="I">I</button> <button type="button" class="word" data-word="entered">entered</button> <button type="button" class="word" data-word="university">university</button>, <button type="button" class="word" data-word="I">I</button> <strong><button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="lived">lived</button></strong> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="that">that</button> <button type="button" class="word" data-word="town">town</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="ten">ten</button> <button type="button" class="word" data-word="years">years</button>.</li>
+<li>常見錯誤：不要寫成 <code><button type="button" class="word" data-word="has">has</button> <button type="button" class="word" data-word="been">been</button> <button type="button" class="word" data-word="open">open</button> <button type="button" class="word" data-word="since">since</button> <button type="button" class="word" data-word="the">the</button> 1960s</code>，因為文章敘事主時間點在過去。</li>
+</ul>
+<h3>2. <code><button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="because">because</button> ..., <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="because">because</button> ...</code></h3>
+<ul>
+<li>規則：用來對比「真正原因」與「表面原因」。</li>
+<li>說明：這個句型很適合寫作時做細緻對照，讓語意更有層次。</li>
+<li>文中例句：<button type="button" class="word" data-word="They">They</button> <button type="button" class="word" data-word="walked">walked</button> <button type="button" class="word" data-word="into">into</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="theater">theater</button> <button type="button" class="word" data-word="again">again</button>, <strong><button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="because">because</button></strong> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="wanted">wanted</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="latest">latest</button> <button type="button" class="word" data-word="film">film</button>, <strong><button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="because">because</button></strong> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="felt">felt</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="were">were</button> <button type="button" class="word" data-word="losing">losing</button> <button type="button" class="word" data-word="part">part</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="themselves">themselves</button>.</li>
+<li>新例句：<button type="button" class="word" data-word="I">I</button> <button type="button" class="word" data-word="study">study</button> <button type="button" class="word" data-word="English">English</button> <strong><button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="because">because</button></strong> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="easy">easy</button>, <strong><button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="because">because</button></strong> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="opens">opens</button> <button type="button" class="word" data-word="new">new</button> <button type="button" class="word" data-word="doors">doors</button>.</li>
+<li>常見錯誤：前後兩部分最好保持平行，不要一邊用子句、一邊只用單字，造成結構不平衡。</li>
+</ul>
+<h3>3. <code><button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="live">live</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="V-ing">V-ing</button></code></h3>
+<ul>
+<li>規則：<code><button type="button" class="word" data-word="live">live</button> <button type="button" class="word" data-word="by">by</button></code> 在此表示「靠……維生／存活」。</li>
+<li>說明：文中不是指生物上的活著，而是指一種商業模式能否成立。</li>
+<li>文中例句：<button type="button" class="word" data-word="Mingxing">Mingxing</button> <button type="button" class="word" data-word="Theater">Theater</button> <strong><button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="live">live</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="competing">competing</button></strong> <button type="button" class="word" data-word="with">with</button> <button type="button" class="word" data-word="giant">giant</button> <button type="button" class="word" data-word="multiplexes">multiplexes</button>.</li>
+<li>新例句：<button type="button" class="word" data-word="That">That</button> <button type="button" class="word" data-word="small">small</button> <button type="button" class="word" data-word="channel">channel</button> <button type="button" class="word" data-word="cannot">cannot</button> <strong><button type="button" class="word" data-word="live">live</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="copying">copying</button></strong> <button type="button" class="word" data-word="bigger">bigger</button> <button type="button" class="word" data-word="creators">creators</button>.</li>
+<li>常見錯誤：不要把 <code><button type="button" class="word" data-word="live">live</button> <button type="button" class="word" data-word="by">by</button></code> 誤解成單純「住在……旁邊」。</li>
+</ul>
+<h3>4. <code><button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="only">only</button> ..., <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="also">also</button> ...</code></h3>
+<ul>
+<li>規則：表達「不只……而且……」。</li>
+<li>說明：這是很常見的強化句型，能讓論點更完整。</li>
+<li>文中例句：<button type="button" class="word" data-word="They">They</button> <button type="button" class="word" data-word="keep">keep</button> <button type="button" class="word" data-word="us">us</button> <button type="button" class="word" data-word="entertained">entertained</button>, <button type="button" class="word" data-word="yes">yes</button>, <strong><button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="also">also</button></strong> <button type="button" class="word" data-word="keep">keep</button> <button type="button" class="word" data-word="us">us</button> <button type="button" class="word" data-word="in">in</button> <button type="button" class="word" data-word="relation">relation</button> <button type="button" class="word" data-word="with">with</button> <button type="button" class="word" data-word="one">one</button> <button type="button" class="word" data-word="another">another</button>.</li>
+<li>新例句：<button type="button" class="word" data-word="Reading">Reading</button> <button type="button" class="word" data-word="English">English</button> <button type="button" class="word" data-word="articles">articles</button> <strong><button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="only">only</button></strong> <button type="button" class="word" data-word="builds">builds</button> <button type="button" class="word" data-word="vocabulary">vocabulary</button>, <strong><button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="also">also</button></strong> <button type="button" class="word" data-word="trains">trains</button> <button type="button" class="word" data-word="your">your</button> <button type="button" class="word" data-word="thinking">thinking</button>.</li>
+<li>常見錯誤：若連接兩個動詞或兩個名詞，形式最好一致。</li>
+</ul>
+<h2><button type="button" class="word" data-word="Sentence">Sentence</button> <button type="button" class="word" data-word="Patterns">Patterns</button></h2>
+<h3>1. <code><button type="button" class="word" data-word="You">You</button> <button type="button" class="word" data-word="do">do</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="always">always</button> <button type="button" class="word" data-word="notice">notice</button> <button type="button" class="word" data-word="their">their</button> <button type="button" class="word" data-word="value">value</button> <button type="button" class="word" data-word="until">until</button> <button type="button" class="word" data-word="they">they</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="close">close</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="disappearing">disappearing</button>.</code></h3>
+<ul>
+<li>自然原因：這句很像母語者常用的反思句，先講一般狀況，再用 <code><button type="button" class="word" data-word="until">until</button></code> 帶出轉折。</li>
+<li>可替換部分：<code><button type="button" class="word" data-word="their">their</button> <button type="button" class="word" data-word="value">value</button></code> 可換成 <code><button type="button" class="word" data-word="its">its</button> <button type="button" class="word" data-word="importance">importance</button></code>, <code><button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="problem">problem</button></code>, <code><button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="risk">risk</button></code>；<code><button type="button" class="word" data-word="close">close</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="disappearing">disappearing</button></code> 可換成 <code><button type="button" class="word" data-word="almost">almost</button> <button type="button" class="word" data-word="gone">gone</button></code>, <code><button type="button" class="word" data-word="about">about</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="end">end</button></code>。</li>
+<li>日常用法：可用來談友情、健康、時間，例如：<code><button type="button" class="word" data-word="You">You</button> <button type="button" class="word" data-word="do">do</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="always">always</button> <button type="button" class="word" data-word="notice">notice</button> <button type="button" class="word" data-word="your">your</button> <button type="button" class="word" data-word="free">free</button> <button type="button" class="word" data-word="time">time</button> <button type="button" class="word" data-word="until">until</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="becomes">becomes</button> <button type="button" class="word" data-word="limited">limited</button>.</code></li>
+</ul>
+<h3>2. <code><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="offer">offer</button> <button type="button" class="word" data-word="something">something</button> <button type="button" class="word" data-word="those">those</button> <button type="button" class="word" data-word="systems">systems</button> <button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="easily">easily</button> <button type="button" class="word" data-word="provide">provide</button>.</code></h3>
+<ul>
+<li>自然原因：<code><button type="button" class="word" data-word="offer">offer</button> <button type="button" class="word" data-word="something">something</button> ... <button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="provide">provide</button></code> 是很典型的分析句型，適合比較兩種選項。</li>
+<li>可替換部分：<code><button type="button" class="word" data-word="those">those</button> <button type="button" class="word" data-word="systems">systems</button></code> 可換成 <code><button type="button" class="word" data-word="big">big</button> <button type="button" class="word" data-word="companies">companies</button></code>, <code><button type="button" class="word" data-word="apps">apps</button></code>, <code><button type="button" class="word" data-word="online">online</button> <button type="button" class="word" data-word="courses">courses</button></code>；<code><button type="button" class="word" data-word="provide">provide</button></code> 可換成 <code><button type="button" class="word" data-word="give">give</button></code>, <code><button type="button" class="word" data-word="create">create</button></code>。</li>
+<li>日常用法：談產品、學校、工作優勢都很適合，例如：<code><button type="button" class="word" data-word="A">A</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="cafe">cafe</button> <button type="button" class="word" data-word="has">has</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="offer">offer</button> <button type="button" class="word" data-word="something">something</button> <button type="button" class="word" data-word="chain">chain</button> <button type="button" class="word" data-word="stores">stores</button> <button type="button" class="word" data-word="cannot">cannot</button> <button type="button" class="word" data-word="easily">easily</button> <button type="button" class="word" data-word="provide">provide</button>.</code></li>
+</ul>
+<h3>3. <code><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="better">better</button> <button type="button" class="word" data-word="question">question</button> <button type="button" class="word" data-word="is">is</button> ...</code></h3>
+<ul>
+<li>自然原因：這是高頻、簡潔、有思辨感的句型，常見於文章或口說表達觀點。</li>
+<li>可替換部分：後面可以接完整句或名詞子句，例如 <code><button type="button" class="word" data-word="why">why</button> <button type="button" class="word" data-word="people">people</button> <button type="button" class="word" data-word="leave">leave</button></code>, <code><button type="button" class="word" data-word="whether">whether</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="plan">plan</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="realistic">realistic</button></code>。</li>
+<li>日常用法：討論選擇時很實用，例如：<code><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="better">better</button> <button type="button" class="word" data-word="question">question</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="whether">whether</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="habit">habit</button> <button type="button" class="word" data-word="helps">helps</button> <button type="button" class="word" data-word="your">your</button> <button type="button" class="word" data-word="long-term">long-term</button> <button type="button" class="word" data-word="goal">goal</button>.</code></li>
+</ul>
+<h2><button type="button" class="word" data-word="Collocations">Collocations</button></h2>
+<ol>
+<li><strong><button type="button" class="word" data-word="turn">turn</button> <button type="button" class="word" data-word="off">off</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="lights">lights</button></strong><ul>
+<li>用法：常用來表示店家或場所結束營業，也可字面表示關燈。</li>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="owner">owner</button> <button type="button" class="word" data-word="did">did</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="want">want</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="turn">turn</button> <button type="button" class="word" data-word="off">off</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="lights">lights</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="last">last</button> <button type="button" class="word" data-word="time">time</button>.</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="spread">spread</button> <button type="button" class="word" data-word="quickly">quickly</button></strong><ul>
+<li>用法：形容消息、流言、情緒快速傳開。</li>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="News">News</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="theater">theater</button>’<button type="button" class="word" data-word="s">s</button> <button type="button" class="word" data-word="possible">possible</button> <button type="button" class="word" data-word="closure">closure</button> <button type="button" class="word" data-word="spread">spread</button> <button type="button" class="word" data-word="quickly">quickly</button> <button type="button" class="word" data-word="online">online</button>.</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="gain">gain</button> <button type="button" class="word" data-word="attention">attention</button></strong><ul>
+<li>用法：表示獲得注意力、關注度。</li>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="students">students</button>’ <button type="button" class="word" data-word="videos">videos</button> <button type="button" class="word" data-word="gained">gained</button> <button type="button" class="word" data-word="attention">attention</button> <button type="button" class="word" data-word="from">from</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="reporters">reporters</button>.</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="make">make</button> <button type="button" class="word" data-word="huge">huge</button> <button type="button" class="word" data-word="profits">profits</button></strong><ul>
+<li>用法：談生意時表示賺很多錢。</li>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="did">did</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="make">make</button> <button type="button" class="word" data-word="huge">huge</button> <button type="button" class="word" data-word="profits">profits</button>, <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="became">became</button> <button type="button" class="word" data-word="stable">stable</button>.</li>
+</ul>
+</li>
+<li><strong><button type="button" class="word" data-word="shared">shared</button> <button type="button" class="word" data-word="ritual">ritual</button></strong><ul>
+<li>用法：指群體共同參與、帶有重複性與情感意義的活動。</li>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="Watching">Watching</button> <button type="button" class="word" data-word="films">films</button> <button type="button" class="word" data-word="together">together</button> <button type="button" class="word" data-word="became">became</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="shared">shared</button> <button type="button" class="word" data-word="ritual">ritual</button> <button type="button" class="word" data-word="again">again</button>.</li>
+</ul>
+</li>
+</ol>
+<h2><button type="button" class="word" data-word="Confusing">Confusing</button> <button type="button" class="word" data-word="Words">Words</button></h2>
+<h3>1. <code><button type="button" class="word" data-word="historic">historic</button></code> / <code><button type="button" class="word" data-word="historical">historical</button></code></h3>
+<ul>
+<li><code><button type="button" class="word" data-word="historic">historic</button></code>：有重大歷史意義的。<ul>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="That">That</button> <button type="button" class="word" data-word="meeting">meeting</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="historic">historic</button> <button type="button" class="word" data-word="moment">moment</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="town">town</button>.</li>
+</ul>
+</li>
+<li><code><button type="button" class="word" data-word="historical">historical</button></code>：與歷史有關的，不一定很重要。<ul>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="They">They</button> <button type="button" class="word" data-word="watched">watched</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="historical">historical</button> <button type="button" class="word" data-word="film">film</button> <button type="button" class="word" data-word="about">about</button> <button type="button" class="word" data-word="ancient">ancient</button> <button type="button" class="word" data-word="kings">kings</button>.</li>
+</ul>
+</li>
+<li>差別：<code><button type="button" class="word" data-word="historic">historic</button></code> 強調「重要性」，<code><button type="button" class="word" data-word="historical">historical</button></code> 強調「題材屬於歷史」。</li>
+</ul>
+<h3>2. <code><button type="button" class="word" data-word="remain">remain</button></code> / <code><button type="button" class="word" data-word="stay">stay</button></code></h3>
+<ul>
+<li><code><button type="button" class="word" data-word="remain">remain</button></code>：較正式，常用於抽象狀態、文章書寫。<ul>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="remained">remained</button> <button type="button" class="word" data-word="relevant">relevant</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="life">life</button>.</li>
+</ul>
+</li>
+<li><code><button type="button" class="word" data-word="stay">stay</button></code>：口語較常見，也可指停留在某地。<ul>
+<li><button type="button" class="word" data-word="Example">Example</button>: <button type="button" class="word" data-word="Please">Please</button> <button type="button" class="word" data-word="stay">stay</button> <button type="button" class="word" data-word="calm">calm</button> <button type="button" class="word" data-word="during">during</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="discussion">discussion</button>.</li>
+</ul>
+</li>
+<li>差別：兩者都可表「保持」，但 <code><button type="button" class="word" data-word="remain">remain</button></code> 在文章裡更正式。</li>
+</ul>
+<h2><button type="button" class="word" data-word="Translation">Translation</button> <button type="button" class="word" data-word="Exercises">Exercises</button></h2>
+<h3>中翻英</h3>
+<ol>
+<li>這家戲院不能只靠和大型影城競爭來生存。</li>
+<li>人們常常要等到某樣東西快消失時，才看見它的價值。</li>
+<li>那場地方行動很快就吸引了大家的注意。</li>
+<li>便利不一定會變成珍貴的回憶。</li>
+<li>更好的問題是，這個地方現在仍然滿足了什麼需求。</li>
+</ol>
+<h3>英翻中</h3>
+<ol>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="town">town</button> <button type="button" class="word" data-word="did">did</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="need">need</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="miracle">miracle</button>; <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="needed">needed</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="practical">practical</button> <button type="button" class="word" data-word="plan">plan</button>.</li>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="old">old</button> <button type="button" class="word" data-word="ticket">ticket</button> <button type="button" class="word" data-word="machine">machine</button> <button type="button" class="word" data-word="remained">remained</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="entrance">entrance</button> <button type="button" class="word" data-word="as">as</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="museum">museum</button> <button type="button" class="word" data-word="piece">piece</button>.</li>
+<li><button type="button" class="word" data-word="Teenagers">Teenagers</button> <button type="button" class="word" data-word="started">started</button> <button type="button" class="word" data-word="going">going</button> <button type="button" class="word" data-word="there">there</button> <button type="button" class="word" data-word="because">because</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="events">events</button> <button type="button" class="word" data-word="felt">felt</button> <button type="button" class="word" data-word="personal">personal</button>.</li>
+<li><button type="button" class="word" data-word="Tradition">Tradition</button> <button type="button" class="word" data-word="survives">survives</button> <button type="button" class="word" data-word="because">because</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="adapts">adapts</button> <button type="button" class="word" data-word="without">without</button> <button type="button" class="word" data-word="losing">losing</button> <button type="button" class="word" data-word="its">its</button> <button type="button" class="word" data-word="deepest">deepest</button> <button type="button" class="word" data-word="purpose">purpose</button>.</li>
+<li><button type="button" class="word" data-word="Language">Language</button> <button type="button" class="word" data-word="helps">helps</button> <button type="button" class="word" data-word="us">us</button> <button type="button" class="word" data-word="notice">notice</button> <button type="button" class="word" data-word="what">what</button> <button type="button" class="word" data-word="kind">kind</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="world">world</button> <button type="button" class="word" data-word="we">we</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="building">building</button>.</li>
+</ol>
+<h3><button type="button" class="word" data-word="Reference">Reference</button> <button type="button" class="word" data-word="Answers">Answers</button></h3>
+<ol>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="survive">survive</button> <button type="button" class="word" data-word="only">only</button> <button type="button" class="word" data-word="by">by</button> <button type="button" class="word" data-word="competing">competing</button> <button type="button" class="word" data-word="with">with</button> <button type="button" class="word" data-word="large">large</button> <button type="button" class="word" data-word="multiplexes">multiplexes</button>.</li>
+<li><button type="button" class="word" data-word="People">People</button> <button type="button" class="word" data-word="often">often</button> <button type="button" class="word" data-word="do">do</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="see">see</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="value">value</button> <button type="button" class="word" data-word="of">of</button> <button type="button" class="word" data-word="something">something</button> <button type="button" class="word" data-word="until">until</button> <button type="button" class="word" data-word="it">it</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="close">close</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="disappearing">disappearing</button>.</li>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="local">local</button> <button type="button" class="word" data-word="campaign">campaign</button> <button type="button" class="word" data-word="quickly">quickly</button> <button type="button" class="word" data-word="gained">gained</button> <button type="button" class="word" data-word="everyone">everyone</button>’<button type="button" class="word" data-word="s">s</button> <button type="button" class="word" data-word="attention">attention</button>.</li>
+<li><button type="button" class="word" data-word="Convenience">Convenience</button> <button type="button" class="word" data-word="does">does</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="always">always</button> <button type="button" class="word" data-word="become">become</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="cherished">cherished</button> <button type="button" class="word" data-word="memory">memory</button>.</li>
+<li><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="better">better</button> <button type="button" class="word" data-word="question">question</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="what">what</button> <button type="button" class="word" data-word="need">need</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="place">place</button> <button type="button" class="word" data-word="still">still</button> <button type="button" class="word" data-word="answers">answers</button> <button type="button" class="word" data-word="today">today</button>.</li>
+<li>這個小鎮不需要奇蹟；它需要一個實際可行的計畫。</li>
+<li>那台舊售票機仍放在入口旁，成為一件展示品。</li>
+<li>青少年開始去那裡，因為那些活動讓人感到很貼近自己。</li>
+<li>傳統能存活，是因為它在適應的同時沒有失去最深層的目的。</li>
+<li>語言幫助我們注意到自己正在打造什麼樣的世界。</li>
+</ol>
+<h2><button type="button" class="word" data-word="Speaking">Speaking</button> <button type="button" class="word" data-word="Practice">Practice</button></h2>
+<ol>
+<li><code><button type="button" class="word" data-word="Places">Places</button> <button type="button" class="word" data-word="can">can</button> <button type="button" class="word" data-word="hold">hold</button> <button type="button" class="word" data-word="memory">memory</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="way">way</button> <button type="button" class="word" data-word="a">a</button> <button type="button" class="word" data-word="song">song</button> <button type="button" class="word" data-word="holds">holds</button> <button type="button" class="word" data-word="emotion">emotion</button>.</code><ul>
+<li>朗讀提示：<code><button type="button" class="word" data-word="hold">hold</button> <button type="button" class="word" data-word="memory">memory</button></code> 連在一起讀；重音放在 <code><button type="button" class="word" data-word="places">places</button></code>, <code><button type="button" class="word" data-word="memory">memory</button></code>, <code><button type="button" class="word" data-word="song">song</button></code>, <code><button type="button" class="word" data-word="emotion">emotion</button></code>；在 <code><button type="button" class="word" data-word="memory">memory</button> / <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="way">way</button></code> 稍微停一下。</li>
+</ul>
+</li>
+<li><code><button type="button" class="word" data-word="It">It</button> <button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="to">to</button> <button type="button" class="word" data-word="offer">offer</button> <button type="button" class="word" data-word="something">something</button> <button type="button" class="word" data-word="those">those</button> <button type="button" class="word" data-word="systems">systems</button> <button type="button" class="word" data-word="could">could</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="easily">easily</button> <button type="button" class="word" data-word="provide">provide</button>.</code><ul>
+<li>朗讀提示：<code><button type="button" class="word" data-word="had">had</button> <button type="button" class="word" data-word="to">to</button></code> 常弱讀接近 <code><button type="button" class="word" data-word="ha-da">ha-da</button></code>；重音放在 <code><button type="button" class="word" data-word="offer">offer</button></code>, <code><button type="button" class="word" data-word="something">something</button></code>, <code><button type="button" class="word" data-word="systems">systems</button></code>, <code><button type="button" class="word" data-word="provide">provide</button></code>。</li>
+</ul>
+</li>
+<li><code><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="cinema">cinema</button> <button type="button" class="word" data-word="was">was</button> <button type="button" class="word" data-word="no">no</button> <button type="button" class="word" data-word="longer">longer</button> <button type="button" class="word" data-word="merely">merely</button> <button type="button" class="word" data-word="selling">selling</button> <button type="button" class="word" data-word="entertainment">entertainment</button>.</code><ul>
+<li>朗讀提示：<code><button type="button" class="word" data-word="no">no</button> <button type="button" class="word" data-word="longer">longer</button></code> 可自然連讀；重音在 <code><button type="button" class="word" data-word="cinema">cinema</button></code>, <code><button type="button" class="word" data-word="longer">longer</button></code>, <code><button type="button" class="word" data-word="selling">selling</button></code>, <code><button type="button" class="word" data-word="entertainment">entertainment</button></code>。</li>
+</ul>
+</li>
+<li><code><button type="button" class="word" data-word="People">People</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="always">always</button> <button type="button" class="word" data-word="searching">searching</button> <button type="button" class="word" data-word="for">for</button> <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cheapest">cheapest</button> <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="fastest">fastest</button> <button type="button" class="word" data-word="option">option</button>.</code><ul>
+<li>朗讀提示：句中節奏可分成 <code><button type="button" class="word" data-word="People">People</button> <button type="button" class="word" data-word="are">are</button> <button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="always">always</button> / <button type="button" class="word" data-word="searching">searching</button> <button type="button" class="word" data-word="for">for</button> / <button type="button" class="word" data-word="the">the</button> <button type="button" class="word" data-word="cheapest">cheapest</button> <button type="button" class="word" data-word="or">or</button> <button type="button" class="word" data-word="fastest">fastest</button> <button type="button" class="word" data-word="option">option</button></code>。</li>
+</ul>
+</li>
+<li><code><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="better">better</button> <button type="button" class="word" data-word="question">question</button> <button type="button" class="word" data-word="is">is</button> <button type="button" class="word" data-word="what">what</button> <button type="button" class="word" data-word="human">human</button> <button type="button" class="word" data-word="need">need</button> <button type="button" class="word" data-word="this">this</button> <button type="button" class="word" data-word="place">place</button> <button type="button" class="word" data-word="still">still</button> <button type="button" class="word" data-word="answers">answers</button>.</code><ul>
+<li>朗讀提示：<code><button type="button" class="word" data-word="better">better</button> <button type="button" class="word" data-word="question">question</button></code> 要清楚重讀；<code><button type="button" class="word" data-word="still">still</button> <button type="button" class="word" data-word="answers">answers</button></code> 可輕微連音；在 <code><button type="button" class="word" data-word="is">is</button> / <button type="button" class="word" data-word="what">what</button></code> 不要停太久。</li>
+</ul>
+</li>
+</ol>
+<h2>今日總結</h2>
+<p>今天你讀了一篇關於老戲院重生的故事，練習了保存、社群、效率與意義等主題字彙，也學會用 <code><button type="button" class="word" data-word="not">not</button> <button type="button" class="word" data-word="because">because</button> ... <button type="button" class="word" data-word="but">but</button> <button type="button" class="word" data-word="because">because</button> ...</code>、<code><button type="button" class="word" data-word="The">The</button> <button type="button" class="word" data-word="better">better</button> <button type="button" class="word" data-word="question">question</button> <button type="button" class="word" data-word="is">is</button> ...</code> 等句型表達更成熟的觀點。</p>
+<label class="completion-check"><input type="checkbox"> 我已完成今天的英文學習 <span class="sync-note" data-sync-note>(尚未同步)</span></label>
+</section>
+</main>
+<div class="lookup-popover" data-lookup-popover role="dialog" aria-live="polite"></div>
+<script>
+const lessonDictionary = {
+  "practical": {
+    "word": "practical",
+    "ipa": "/ˈpræk.tɪ.kəl/",
+    "pos": "形容詞",
+    "zh": "實際的；務實的"
+  },
+  "unavoidable": {
+    "word": "unavoidable",
+    "ipa": "/ˌʌn.əˈvɔɪ.də.bəl/",
+    "pos": "形容詞",
+    "zh": "無法避免的"
+  },
+  "assignment": {
+    "word": "assignment",
+    "ipa": "/əˈsaɪn.mənt/",
+    "pos": "名詞",
+    "zh": "作業；任務"
+  },
+  "campaign": {
+    "word": "campaign",
+    "ipa": "/kæmˈpeɪn/",
+    "pos": "名詞",
+    "zh": "宣傳行動；活動"
+  },
+  "volunteer": {
+    "word": "volunteer",
+    "ipa": "/ˌvɑː.lənˈtɪr/",
+    "pos": "名詞；動詞",
+    "zh": "志工；自願做"
+  },
+  "compete": {
+    "word": "compete",
+    "ipa": "/kəmˈpiːt/",
+    "pos": "動詞",
+    "zh": "競爭"
+  },
+  "festive": {
+    "word": "festive",
+    "ipa": "/ˈfes.tɪv/",
+    "pos": "形容詞",
+    "zh": "有節慶氣氛的"
+  },
+  "harsh": {
+    "word": "harsh",
+    "ipa": "/hɑːrʃ/",
+    "pos": "形容詞",
+    "zh": "刺眼的；嚴厲的；粗糙不舒服的"
+  },
+  "stability": {
+    "word": "stability",
+    "ipa": "/stəˈbɪl.ə.ti/",
+    "pos": "名詞",
+    "zh": "穩定；安定"
+  },
+  "cherished": {
+    "word": "cherished",
+    "ipa": "/ˈtʃer.ɪʃt/",
+    "pos": "形容詞",
+    "zh": "珍愛的；珍惜的"
+  },
+  "preservation": {
+    "word": "preservation",
+    "ipa": "/ˌprez.əˈveɪ.ʃən/",
+    "pos": "名詞",
+    "zh": "保存；保護"
+  },
+  "relevant": {
+    "word": "relevant",
+    "ipa": "/ˈrel.ə.vənt/",
+    "pos": "形容詞",
+    "zh": "相關的；仍有意義的"
+  },
+  "discipline": {
+    "word": "discipline",
+    "ipa": "/ˈdɪs.ə.plɪn/",
+    "pos": "名詞",
+    "zh": "紀律；自我約束"
+  },
+  "efficient": {
+    "word": "efficient",
+    "ipa": "/ɪˈfɪʃ.ənt/",
+    "pos": "形容詞",
+    "zh": "有效率的"
+  },
+  "deserve": {
+    "word": "deserve",
+    "ipa": "/dɪˈzɝːv/",
+    "pos": "動詞",
+    "zh": "值得；應得"
+  },
+  "vocabulary": {
+    "word": "vocabulary",
+    "ipa": "/vəˈkæb.jə.ler.i/",
+    "pos": "名詞",
+    "zh": "字彙；詞彙"
+  },
+  "grammar": {
+    "word": "grammar",
+    "ipa": "/ˈɡræm.ər/",
+    "pos": "名詞",
+    "zh": "文法"
+  },
+  "sentence": {
+    "word": "sentence",
+    "ipa": "/ˈsen.təns/",
+    "pos": "名詞",
+    "zh": "句子"
+  },
+  "pattern": {
+    "word": "pattern",
+    "ipa": "/ˈpæt̬.ɚn/",
+    "pos": "名詞",
+    "zh": "模式；句型"
+  },
+  "collocation": {
+    "word": "collocation",
+    "ipa": "/ˌkɑː.ləˈkeɪ.ʃən/",
+    "pos": "名詞",
+    "zh": "搭配詞"
+  },
+  "translation": {
+    "word": "translation",
+    "ipa": "/trænzˈleɪ.ʃən/",
+    "pos": "名詞",
+    "zh": "翻譯"
+  },
+  "exercise": {
+    "word": "exercise",
+    "ipa": "/ˈek.sɚ.saɪz/",
+    "pos": "名詞",
+    "zh": "練習"
+  },
+  "reference": {
+    "word": "reference",
+    "ipa": "/ˈref.ɚ.əns/",
+    "pos": "名詞",
+    "zh": "參考"
+  },
+  "answer": {
+    "word": "answer",
+    "ipa": "/ˈæn.sɚ/",
+    "pos": "名詞；動詞",
+    "zh": "答案；回答"
+  },
+  "speaking": {
+    "word": "speaking",
+    "ipa": "/ˈspiː.kɪŋ/",
+    "pos": "名詞；形容詞",
+    "zh": "口說；說話的"
+  },
+  "practice": {
+    "word": "practice",
+    "ipa": "/ˈpræk.tɪs/",
+    "pos": "名詞；動詞",
+    "zh": "練習；實踐"
+  },
+  "progress": {
+    "word": "progress",
+    "ipa": "/ˈprɑː.ɡres/",
+    "pos": "名詞",
+    "zh": "進步；發展"
+  },
+  "cinema": {
+    "word": "cinema",
+    "ipa": "/ˈsɪn.ə.mə/",
+    "pos": "名詞",
+    "zh": "電影院；電影藝術"
+  },
+  "theater": {
+    "word": "theater",
+    "ipa": "/ˈθiː.ə.t̬ɚ/",
+    "pos": "名詞",
+    "zh": "劇院；戲院"
+  },
+  "streaming": {
+    "word": "streaming",
+    "ipa": "/ˈstriː.mɪŋ/",
+    "pos": "名詞；形容詞",
+    "zh": "串流；串流的"
+  },
+  "community": {
+    "word": "community",
+    "ipa": "/kəˈmjuː.nə.t̬i/",
+    "pos": "名詞",
+    "zh": "社群；社區"
+  },
+  "memory": {
+    "word": "memory",
+    "ipa": "/ˈmem.ɚ.i/",
+    "pos": "名詞",
+    "zh": "記憶"
+  },
+  "tradition": {
+    "word": "tradition",
+    "ipa": "/trəˈdɪʃ.ən/",
+    "pos": "名詞",
+    "zh": "傳統"
+  },
+  "ritual": {
+    "word": "ritual",
+    "ipa": "/ˈrɪtʃ.u.əl/",
+    "pos": "名詞",
+    "zh": "儀式；固定習慣"
+  },
+  "nostalgic": {
+    "word": "nostalgic",
+    "ipa": "/nɑːˈstæl.dʒɪk/",
+    "pos": "形容詞",
+    "zh": "懷舊的"
+  },
+  "nostalgia": {
+    "word": "nostalgia",
+    "ipa": "/nɑːˈstæl.dʒə/",
+    "pos": "名詞",
+    "zh": "懷舊；鄉愁"
+  },
+  "convenient": {
+    "word": "convenient",
+    "ipa": "/kənˈviː.ni.ənt/",
+    "pos": "形容詞",
+    "zh": "方便的"
+  },
+  "convenience": {
+    "word": "convenience",
+    "ipa": "/kənˈviː.ni.əns/",
+    "pos": "名詞",
+    "zh": "便利"
+  },
+  "relationship": {
+    "word": "relationship",
+    "ipa": "/rɪˈleɪ.ʃən.ʃɪp/",
+    "pos": "名詞",
+    "zh": "關係"
+  },
+  "preserve": {
+    "word": "preserve",
+    "ipa": "/prɪˈzɝːv/",
+    "pos": "動詞",
+    "zh": "保存；保護"
+  }
+};
+const labels = {
+  meaning: '中文',
+  ipa: '音標',
+  pos: '詞性',
+  audio: '發音',
+  loading: '查詢中...',
+  fallbackZh: '未收錄於本課字典',
+  fallbackPos: '--',
+  fallbackIpa: '--'
+};
+const speechAvailable = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+const irregular = {
+  were: 'be', was: 'be', been: 'be', is: 'be', are: 'be', am: 'be',
+  did: 'do', does: 'do', done: 'do', had: 'have', has: 'have',
+  made: 'make', gone: 'go', went: 'go', took: 'take', taken: 'take',
+  bought: 'buy', felt: 'feel', kept: 'keep', seen: 'see', written: 'write',
+  children: 'child', people: 'person', memories: 'memory', businesses: 'business'
+};
+const posMap = {
+  noun: '名詞',
+  verb: '動詞',
+  adjective: '形容詞',
+  adverb: '副詞',
+  pronoun: '代名詞',
+  preposition: '介系詞',
+  conjunction: '連接詞',
+  interjection: '感嘆詞'
+};
+function normalizeCandidates(raw) {
+  const word = raw.toLowerCase().replace(/^'+|'+$/g, '');
+  const candidates = [word];
+  if (irregular[word]) candidates.push(irregular[word]);
+  if (word.includes('-')) candidates.push(word.split('-').pop());
+  if (word.endsWith('ies') && word.length > 4) candidates.push(word.slice(0, -3) + 'y');
+  if (word.endsWith('ing') && word.length > 5) {
+    candidates.push(word.slice(0, -3));
+    candidates.push(word.slice(0, -3) + 'e');
+  }
+  if (word.endsWith('ed') && word.length > 4) {
+    candidates.push(word.slice(0, -2));
+    candidates.push(word.slice(0, -1));
+  }
+  if (word.endsWith('es') && word.length > 4) candidates.push(word.slice(0, -2));
+  if (word.endsWith('s') && word.length > 3) candidates.push(word.slice(0, -1));
+  return Array.from(new Set(candidates));
+}
+function localLookup(raw) {
+  const candidates = normalizeCandidates(raw);
+  for (const candidate of candidates) {
+    if (lessonDictionary[candidate]) return lessonDictionary[candidate];
+  }
+  return null;
+}
+function activatePair(pairId) {
+  document.querySelectorAll('.lesson-sentence.active').forEach((node) => node.classList.remove('active'));
+  if (!pairId) return;
+  document.querySelectorAll('.lesson-sentence[data-pair="' + pairId + '"]').forEach((node) => node.classList.add('active'));
+}
+const articleMeta = {
+  id: decodeURIComponent(location.pathname.split('/').pop() || document.title).replace(/\.html$/i, ''),
+  title: (document.querySelector('h1') && document.querySelector('h1').textContent.trim()) || document.title,
+  file: decodeURIComponent(location.pathname.split('/').pop() || '')
+};
+const savedWords = new Set();
+const parentWindow = window.parent && window.parent !== window ? window.parent : null;
+let cloudSyncEnabled = localStorage.getItem('englishCoach.syncEnabled') === 'true';
+function normalizeSaveKey(raw) {
+  return String(raw || '').toLowerCase().trim().replace(/^'+|'+$/g, '');
+}
+function readJsonStorage(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
+function writeJsonStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {}
+}
+function loadLocalSavedWords() {
+  const words = readJsonStorage('englishCoach.savedWords', []);
+  words.forEach(function (item) {
+    const key = normalizeSaveKey(item && (item.normalized || item.word || item));
+    if (key) savedWords.add(key);
+  });
+}
+function updateLocalSavedWord(entry, isSaved) {
+  const words = readJsonStorage('englishCoach.savedWords', []);
+  const key = normalizeSaveKey(entry.normalized || entry.word);
+  const filtered = words.filter(function (item) {
+    return normalizeSaveKey(item && (item.normalized || item.word || item)) !== key;
+  });
+  if (isSaved) filtered.push(entry);
+  writeJsonStorage('englishCoach.savedWords', filtered);
+}
+function sendDataCommand(command, payload) {
+  if (!parentWindow) return;
+  parentWindow.postMessage({ type: 'english-coach:data', command: command, payload: payload }, '*');
+}
+function updateStarButtons() {
+  document.querySelectorAll('[data-save-word]').forEach(function (button) {
+    const key = normalizeSaveKey(button.dataset.normalized || button.dataset.saveWord);
+    const isSaved = savedWords.has(key);
+    const isLoading = button.dataset.loading === 'true';
+    const saveTitle = !cloudSyncEnabled ? '請先在設定輸入密碼開啟同步' : (isLoading ? '查詢完成後可收藏' : (isSaved ? '取消收藏' : '收藏單字'));
+    button.classList.toggle('is-saved', isSaved);
+    button.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
+    button.textContent = isSaved ? '★' : '☆';
+    button.title = saveTitle;
+    button.setAttribute('aria-label', saveTitle);
+    button.disabled = !cloudSyncEnabled || isLoading;
+  });
+}
+function updateSyncLockedUI() {
+  const note = document.querySelector('[data-sync-note]');
+  if (completionInput) {
+    completionInput.disabled = !cloudSyncEnabled;
+    completionInput.title = cloudSyncEnabled ? '' : '請先在設定輸入密碼開啟同步';
+  }
+  if (note) note.classList.toggle('hidden', cloudSyncEnabled);
+  updateStarButtons();
+}
+function applySavedWords(words) {
+  savedWords.clear();
+  (words || []).forEach(function (item) {
+    const key = normalizeSaveKey(item && (item.normalized || item.word || item));
+    if (key) savedWords.add(key);
+  });
+  updateStarButtons();
+}
+function toggleSavedWord(button) {
+  if (!cloudSyncEnabled) return;
+  const entry = {
+    normalized: normalizeSaveKey(button.dataset.normalized || button.dataset.saveWord),
+    word: button.dataset.saveWord || '',
+    zh: button.dataset.zh || '',
+    ipa: button.dataset.ipa || '',
+    pos: button.dataset.pos || '',
+    articleId: articleMeta.id,
+    articleTitle: articleMeta.title,
+    articleFile: articleMeta.file,
+    savedAt: new Date().toISOString()
+  };
+  if (!entry.normalized) return;
+  const willSave = !savedWords.has(entry.normalized);
+  if (willSave) savedWords.add(entry.normalized);
+  else savedWords.delete(entry.normalized);
+  updateLocalSavedWord(entry, willSave);
+  updateStarButtons();
+  sendDataCommand(willSave ? 'saveWord' : 'removeSavedWord', entry);
+}
+function renderLookup(entry, requestedWord) {
+  const displayWord = entry && entry.word ? entry.word : requestedWord;
+  const zh = entry && entry.zh ? entry.zh : labels.fallbackZh;
+  const ipa = entry && entry.ipa ? entry.ipa : labels.fallbackIpa;
+  const pos = entry && entry.pos ? entry.pos : labels.fallbackPos;
+  const disabled = speechAvailable ? '' : ' disabled';
+  const normalized = normalizeSaveKey(displayWord);
+  const isSaved = savedWords.has(normalized);
+  const saveDisabled = zh === labels.loading || !cloudSyncEnabled;
+  const saveTitle = !cloudSyncEnabled ? '請先在設定輸入密碼開啟同步' : (zh === labels.loading ? '查詢完成後可收藏' : (isSaved ? '取消收藏' : '收藏單字'));
+  return '<div class="lookup-head"><p class="lookup-word">' + escapeHtml(displayWord) + '</p>' +
+    '<div class="lookup-actions"><button type="button" class="star-button' + (isSaved ? ' is-saved' : '') + '" data-save-word="' + escapeAttr(displayWord) + '" data-normalized="' + escapeAttr(normalized) + '" data-zh="' + escapeAttr(zh) + '" data-ipa="' + escapeAttr(ipa) + '" data-pos="' + escapeAttr(pos) + '" data-loading="' + (zh === labels.loading ? 'true' : 'false') + '" aria-label="' + saveTitle + '" aria-pressed="' + (isSaved ? 'true' : 'false') + '" title="' + saveTitle + '"' + (saveDisabled ? ' disabled' : '') + '>' + (isSaved ? '★' : '☆') + '</button>' +
+    '<button type="button" class="speak-button" data-speak-word="' + escapeAttr(displayWord) + '"' + disabled + '>' + labels.audio + '</button></div></div>' +
+    '<p class="lookup-row"><strong>' + labels.meaning + '</strong> ' + escapeHtml(zh) + '</p>' +
+    '<p class="lookup-row"><strong>' + labels.ipa + '</strong> ' + escapeHtml(ipa) + '</p>' +
+    '<p class="lookup-row"><strong>' + labels.pos + '</strong> ' + escapeHtml(pos) + '</p>';
+}
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, function (char) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+  });
+}
+function escapeAttr(value) {
+  return escapeHtml(value).replace(/\`/g, '&#96;');
+}
+function placePopover(popover, x, y) {
+  const margin = 14;
+  popover.style.left = x + margin + 'px';
+  popover.style.top = y + margin + 'px';
+  requestAnimationFrame(function () {
+    const rect = popover.getBoundingClientRect();
+    let left = x + margin;
+    let top = y + margin;
+    if (rect.right > window.innerWidth - margin) left = Math.max(margin, window.innerWidth - rect.width - margin);
+    if (rect.bottom > window.innerHeight - margin) top = Math.max(margin, y - rect.height - margin);
+    popover.style.left = left + 'px';
+    popover.style.top = top + 'px';
+  });
+}
+function speakWord(raw) {
+  if (!speechAvailable) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(raw);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.88;
+  window.speechSynthesis.speak(utterance);
+}
+async function onlineLookup(raw) {
+  const word = raw.toLowerCase();
+  const result = { word: raw, zh: '', ipa: '', pos: '' };
+  try {
+    const dictResponse = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word));
+    if (dictResponse.ok) {
+      const data = await dictResponse.json();
+      const first = data && data[0];
+      if (first) {
+        result.ipa = first.phonetic || (first.phonetics || []).map(function (item) { return item.text; }).find(Boolean) || '';
+        const pos = (first.meanings || [])[0] && first.meanings[0].partOfSpeech || '';
+        result.pos = posMap[pos] || pos;
+      }
+    }
+  } catch (error) {}
+  try {
+    const translationResponse = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(word) + '&langpair=en%7Czh-TW');
+    if (translationResponse.ok) {
+      const data = await translationResponse.json();
+      result.zh = data && data.responseData && data.responseData.translatedText || '';
+    }
+  } catch (error) {}
+  return result.zh || result.ipa || result.pos ? result : null;
+}
+const popover = document.querySelector('[data-lookup-popover]');
+const completionInput = document.querySelector('.completion-check input');
+loadLocalSavedWords();
+if (completionInput) {
+  const localDone = localStorage.getItem('englishCoach.articleDone.' + articleMeta.id);
+  if (localDone !== null) completionInput.checked = localDone === 'true';
+  completionInput.addEventListener('change', function () {
+    if (!cloudSyncEnabled) {
+      completionInput.checked = false;
+      updateSyncLockedUI();
+      return;
+    }
+    const done = completionInput.checked;
+    localStorage.setItem('englishCoach.articleDone.' + articleMeta.id, String(done));
+    sendDataCommand('setArticleDone', { article: articleMeta, done: done });
+  });
+}
+updateSyncLockedUI();
+window.addEventListener('message', function (event) {
+  const message = event.data || {};
+  if (message.type === 'english-coach:sync-state') {
+    cloudSyncEnabled = !!message.enabled;
+    localStorage.setItem('englishCoach.syncEnabled', String(cloudSyncEnabled));
+    updateSyncLockedUI();
+  }
+  if (message.type === 'english-coach:saved-words') {
+    applySavedWords(message.words || []);
+  }
+  if (message.type === 'english-coach:article-states' && completionInput) {
+    const state = message.articles && message.articles[articleMeta.id];
+    if (typeof state === 'boolean') completionInput.checked = state;
+  }
+});
+if (parentWindow) {
+  parentWindow.postMessage({ type: 'english-coach:article-ready', article: articleMeta }, '*');
+}
+document.addEventListener('mouseover', function (event) {
+  const sentence = event.target.closest('.lesson-sentence');
+  if (sentence) activatePair(sentence.dataset.pair);
+});
+document.addEventListener('focusin', function (event) {
+  const sentence = event.target.closest('.lesson-sentence');
+  if (sentence) activatePair(sentence.dataset.pair);
+});
+document.addEventListener('mouseout', function (event) {
+  if (!event.relatedTarget || !event.relatedTarget.closest || !event.relatedTarget.closest('.lesson-sentence')) activatePair(null);
+});
+document.addEventListener('click', async function (event) {
+  const starButton = event.target.closest('[data-save-word]');
+  if (starButton) {
+    event.stopPropagation();
+    if (starButton.disabled || !cloudSyncEnabled) return;
+    toggleSavedWord(starButton);
+    return;
+  }
+  const speakButton = event.target.closest('[data-speak-word]');
+  if (speakButton) {
+    event.stopPropagation();
+    speakWord(speakButton.dataset.speakWord);
+    return;
+  }
+  const word = event.target.closest('.word');
+  if (!word) {
+    if (!event.target.closest('.lookup-popover')) popover.classList.remove('visible');
+    return;
+  }
+  event.stopPropagation();
+  const raw = word.dataset.word;
+  placePopover(popover, event.clientX, event.clientY);
+  const local = localLookup(raw);
+  popover.innerHTML = renderLookup(local || { word: raw, zh: labels.loading, ipa: '', pos: '' }, raw);
+  popover.classList.add('visible');
+  if (local) return;
+  const remote = await onlineLookup(raw);
+  popover.innerHTML = renderLookup(remote || null, raw);
+});
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape') popover.classList.remove('visible');
+});
+</script>
+</body>
+</html>

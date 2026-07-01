@@ -1,0 +1,4 @@
+interface:
+  display_name: "Daily English Coach"
+  short_description: "Create daily B1-to-B2 English lessons as interactive HTML."
+  default_prompt: "Use $daily-english-coach to create today's interactive HTML English lesson."
