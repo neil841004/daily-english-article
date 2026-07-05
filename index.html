@@ -86,7 +86,9 @@ button:disabled, input:disabled { opacity: .55; cursor: not-allowed; }
 .article-item:hover { background: rgba(15, 118, 110, .08); }
 .article-item.active { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
 .article-date { display: block; color: var(--muted); font-size: .78rem; line-height: 1.25; }
-.article-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 750; line-height: 1.35; }
+.article-title-row { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.article-title { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 750; line-height: 1.35; }
+.article-tag { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 19px; border: 1px solid rgba(15, 118, 110, .24); border-radius: 3px; background: #e8f4f1; color: var(--accent); padding: 1px 5px; font-size: .68rem; font-weight: 850; line-height: 1.1; }
 .article-item.done {
   background: #eef1e8;
   color: #586052;
@@ -98,6 +100,7 @@ button:disabled, input:disabled { opacity: .55; cursor: not-allowed; }
 }
 .article-item.done .article-date { color: #7b8375; }
 .article-item.done .article-title { color: #586052; font-weight: 650; }
+.article-item.done .article-tag { border-color: rgba(88, 96, 82, .24); background: #f5f6f0; color: #687260; }
 .sidebar-foot {
   display: grid;
   gap: 10px;
@@ -248,38 +251,58 @@ const syncPassword = '2850';
 const articles = [
   {
     id: '2026-07-06_迷宮裡的線',
-    title: '迷宮裡的線',
+    title: '#8迷宮裡的線',
     date: '2026-07-06',
+    tag: '神話',
     file: 'articles/2026-07-06_迷宮裡的線.html'
   },
   {
     id: '2026-07-05_一張來自火星的照片',
-    title: '一張來自火星的照片',
+    title: '#7一張來自火星的照片',
     date: '2026-07-05',
+    tag: '太空',
     file: 'articles/2026-07-05_一張來自火星的照片.html'
   },
   {
-    id: '2026-07-04_好遊戲怎麼教玩家',
-    title: '好遊戲怎麼教玩家',
+    id: '2026-07-04_慢一點其實更快的決定力',
+    title: '#6慢一點其實更快的決定力',
     date: '2026-07-04',
+    tag: '決策',
+    file: 'articles/2026-07-04_慢一點其實更快的決定力.html'
+  },
+  {
+    id: '2026-07-04_好遊戲怎麼教玩家',
+    title: '#5好遊戲怎麼教玩家',
+    date: '2026-07-04',
+    tag: '遊戲設計',
     file: 'articles/2026-07-04_好遊戲怎麼教玩家.html'
   },
   {
     id: '2026-07-03_城市裡的安靜音樂',
-    title: '城市裡的安靜音樂',
+    title: '#4城市裡的安靜音樂',
     date: '2026-07-03',
+    tag: '音樂',
     file: 'articles/2026-07-03_城市裡的安靜音樂.html'
   },
   {
-    id: '2026-07-02_會寫信的機器',
-    title: '會寫信的機器',
+    id: '2026-07-02_城市裡的無手機早晨俱樂部',
+    title: '#3城市裡的無手機早晨俱樂部',
     date: '2026-07-02',
+    tag: '專注',
+    file: 'articles/2026-07-02_城市裡的無手機早晨俱樂部.html'
+  },
+  {
+    id: '2026-07-02_會寫信的機器',
+    title: '#2會寫信的機器',
+    date: '2026-07-02',
+    tag: 'AI',
     file: 'articles/2026-07-02_會寫信的機器.html'
   },
   {
     id: '2026-07-01_小鎮最後一家電影院',
-    title: '小鎮最後一家電影院',
+    title: '#1小鎮最後一家電影院',
     date: '2026-07-01',
+    tag: '電影',
     file: 'articles/2026-07-01_小鎮最後一家電影院.html'
   }
 ].sort(function (a, b) {
@@ -325,11 +348,16 @@ function setStatus(text) {
   statusNode.textContent = text;
   settingsStatusNode.textContent = text;
 }
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, function (char) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+  });
+}
 function renderList() {
   list.innerHTML = articles.map(function (article) {
     const done = !!articleStates[article.id];
     return '<button type="button" class="article-item' + (article.id === currentArticle.id ? ' active' : '') + (done ? ' done' : '') + '" data-article-id="' + article.id + '">' +
-      '<span class="article-date">' + article.date + '</span><span class="article-title">' + article.title + '</span></button>';
+      '<span class="article-date">' + escapeHtml(article.date) + '</span><span class="article-title-row"><span class="article-title">' + escapeHtml(article.title) + '</span><span class="article-tag">' + escapeHtml(article.tag || '') + '</span></span></button>';
   }).join('');
 }
 function selectArticle(article) {

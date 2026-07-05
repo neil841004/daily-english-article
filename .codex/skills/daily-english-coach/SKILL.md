@@ -19,18 +19,24 @@ Use Traditional Chinese for explanations, translations, instructions, and summar
 4. Build spaced review from lessons dated 1, 3, 7, 14, and 30 days before the target date.
 5. Choose a fresh topic that has knowledge, story, and insight; avoid repeating recent topics when previous lessons exist.
 6. Write the full lesson in HTML and save it as a `.html` file.
-7. If the workspace uses the parent `index.html` reading library, save new lesson files under `articles/`, add the new article metadata to the `articles` array in the parent `index.html`, and keep that array sorted from newest to oldest.
+7. If the workspace uses the parent `index.html` reading library, save new lesson files under `articles/`, add the new article metadata to the `articles` array in the parent `index.html`, include its core `tag`, and keep that array sorted from newest to oldest.
 8. When the reading library is connected to Google Sheets, make sure new article metadata can be synchronized to the `文章進度` sheet through the parent page's `syncArticles` flow. Do not require the learner to manually create a row for each new article.
 9. Keep the final reply short and include the saved file path.
 
 ## File Rules
 
 - Save exactly one lesson file as `.html` unless the user asks otherwise. Do not create a `.md` file by default.
+- When legacy `.md` files already exist under `articles/`, convert them into self-contained `.html` files that preserve the same date/title basename. Keep the original `.md` source unless the user explicitly asks to delete or move it.
 - In addition to the lesson HTML, generate one separate 16:9 cover image for each article, save it in the workspace (for example under `assets/covers/`), and place it at the very top of the lesson page as a Banner before the title/header.
+- Cover images must be generated from the article content, not from a generic reusable template. Before prompting for a cover, extract 3 to 5 concrete visual anchors from the article such as setting, key objects, action, mood, and time of day. Put those anchors in the image prompt.
+- Do not substitute repeated abstract/geometric template art, title-card graphics, or only category-colored backgrounds for article covers. If image generation is unavailable, say so clearly instead of pretending a generic placeholder is a content-based cover.
+- Unless the user asks for text in the image, cover prompts should avoid readable text, dates, titles, watermarks, and logos; the article page and index already show title and tag text.
 - Use filename format `YYYY-MM-DD_中文文章標題.html`.
 - The filename title after the date must be Traditional Chinese, not English, romanization, or mixed English-Chinese. Example: `2026-07-01_小鎮最後一家電影院.html`.
 - Make the title concise and filesystem-safe: remove or replace `<>:"/\|?*`, trim extra spaces, and avoid overly long filenames.
 - Put the same Traditional Chinese title as the main `<h1>` title at the top of the HTML file. If an English title is useful, add it as a short subtitle inside the HTML, not in the filename.
+- Display titles must be prefixed with a chronological article number in the page `<title>`, main `<h1>`, and parent `index.html` metadata, for example `#1小鎮最後一家電影院`. Count from oldest generated article to newest; when multiple articles share the same date, keep their original generation/order within that date. Do not add the `#編號` prefix to filenames unless the user explicitly asks.
+- Add one concise core tag for every article. Put it directly below the main `<h1>` in the lesson page as a small tag element, and store the same value as `tag` in the parent `index.html` article metadata.
 - The HTML must work by opening the file directly in a browser. Inline the required CSS and JavaScript; do not require a build step.
 - End the file with this checkbox:
 
@@ -50,6 +56,7 @@ Render the lesson as a complete HTML document with semantic structure and readab
 - Set main reading/body text at about 150% of the previous default lesson size while keeping headings proportionally balanced and responsive.
 - Keep CSS and JavaScript inside the file unless the user explicitly asks for separate assets.
 - Avoid visible instructional UI copy explaining how the interactions work; make the affordances discoverable through hover, cursor, and polished behavior.
+- In the parent `index.html` reading library, show each article's core `tag` beside the title in the left article list as a compact square-ish small-text badge. Keep the tag from crowding or resizing the title row on narrow screens.
 
 ## Spaced Review
 
