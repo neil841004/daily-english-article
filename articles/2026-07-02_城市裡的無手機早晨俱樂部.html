@@ -327,6 +327,18 @@ const lessonDictionary = {
     "ipa": "ˈɡæð.ɚ",
     "pos": ""
   },
+  "gath": {
+    "word": "gather",
+    "zh": "聚集",
+    "ipa": "ˈɡæð.ɚ",
+    "pos": ""
+  },
+  "gathe": {
+    "word": "gather",
+    "zh": "聚集",
+    "ipa": "ˈɡæð.ɚ",
+    "pos": ""
+  },
   "routine": {
     "word": "routine",
     "zh": "固定習慣，例行程序",
@@ -334,6 +346,12 @@ const lessonDictionary = {
     "pos": ""
   },
   "anxious": {
+    "word": "anxious",
+    "zh": "焦慮的",
+    "ipa": "ˈæŋk.ʃəs",
+    "pos": ""
+  },
+  "anxiou": {
     "word": "anxious",
     "zh": "焦慮的",
     "ipa": "ˈæŋk.ʃəs",
@@ -352,6 +370,18 @@ const lessonDictionary = {
     "pos": ""
   },
   "limited": {
+    "word": "limited",
+    "zh": "有限的",
+    "ipa": "ˈlɪm.ə.t̬ɪd",
+    "pos": ""
+  },
+  "limit": {
+    "word": "limited",
+    "zh": "有限的",
+    "ipa": "ˈlɪm.ə.t̬ɪd",
+    "pos": ""
+  },
+  "limite": {
     "word": "limited",
     "zh": "有限的",
     "ipa": "ˈlɪm.ə.t̬ɪd",
@@ -399,6 +429,12 @@ const lessonDictionary = {
     "ipa": "ˈɡlæm.ɚ.əs",
     "pos": ""
   },
+  "glamorou": {
+    "word": "glamorous",
+    "zh": "迷人的，華麗的",
+    "ipa": "ˈɡlæm.ɚ.əs",
+    "pos": ""
+  },
   "durable": {
     "word": "durable",
     "zh": "耐久的，持久的",
@@ -410,33 +446,147 @@ const lessonDictionary = {
     "zh": "過時的",
     "ipa": "ˌaʊtˈdeɪ.t̬ɪd",
     "pos": ""
+  },
+  "outdat": {
+    "word": "outdated",
+    "zh": "過時的",
+    "ipa": "ˌaʊtˈdeɪ.t̬ɪd",
+    "pos": ""
+  },
+  "outdate": {
+    "word": "outdated",
+    "zh": "過時的",
+    "ipa": "ˌaʊtˈdeɪ.t̬ɪd",
+    "pos": ""
   }
 };
+
 const labels = {
-  fallbackZh: '這個字未收錄在本課字典中，請先依上下文猜意思。',
-  fallbackIpa: '未收錄',
-  fallbackPos: '未收錄',
-  meaning: '中文',
-  ipa: 'IPA',
-  pos: '詞性',
-  audio: '播放'
+  audio: '發音',
+  meaning: '意思：',
+  ipa: 'IPA：',
+  pos: '詞性：',
+  loading: '查詢中...',
+  fallbackZh: '查不到這個字，請先依上下文猜意思。',
+  fallbackIpa: '未提供',
+  fallbackPos: '未提供'
 };
+const posMap = { noun: 'n.', verb: 'v.', adjective: 'adj.', adverb: 'adv.', pronoun: 'pron.', preposition: 'prep.', conjunction: 'conj.', interjection: 'interj.' };
+const speechAvailable = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+const remoteLookupCache = new Map();
+const irregular = {
+  were: 'be', was: 'be', been: 'be', being: 'be', is: 'be', are: 'be', am: 'be',
+  did: 'do', does: 'do', done: 'do', had: 'have', has: 'have',
+  made: 'make', gave: 'give', given: 'give', gone: 'go', went: 'go',
+  took: 'take', taken: 'take', bought: 'buy', felt: 'feel', kept: 'keep',
+  seen: 'see', wrote: 'write', written: 'write', found: 'find', lost: 'lose',
+  left: 'leave', thought: 'think', told: 'tell', said: 'say', children: 'child',
+  people: 'person', memories: 'memory', businesses: 'business'
+};
+function cleanLookupKey(raw) {
+  return String(raw || '')
+    .toLowerCase()
+    .trim()
+    .replace(/&(?:#39|#x27|rsquo);/g, "'")
+    .replace(/[’`]/g, "'")
+    .replace(/^[^a-z]+|[^a-z]+$/g, '');
+}
+function addCandidate(candidates, value) {
+  if (value && value.length > 1) candidates.push(value);
+}
+function addStemCandidates(base, candidates) {
+  if (base.endsWith("'s") && base.length > 3) addCandidate(candidates, base.slice(0, -2));
+  if (base.endsWith('ies') && base.length > 4) addCandidate(candidates, base.slice(0, -3) + 'y');
+  if (base.endsWith('ves') && base.length > 4) {
+    addCandidate(candidates, base.slice(0, -3) + 'f');
+    addCandidate(candidates, base.slice(0, -3) + 'fe');
+  }
+  if (base.endsWith('ing') && base.length > 5) {
+    const stem = base.slice(0, -3);
+    addCandidate(candidates, stem);
+    addCandidate(candidates, stem + 'e');
+    if (/([a-z])\1$/.test(stem)) addCandidate(candidates, stem.slice(0, -1));
+  }
+  if (base.endsWith('ied') && base.length > 4) addCandidate(candidates, base.slice(0, -3) + 'y');
+  if (base.endsWith('ed') && base.length > 4) {
+    const stem = base.slice(0, -2);
+    addCandidate(candidates, stem);
+    addCandidate(candidates, stem + 'e');
+    if (/([a-z])\1$/.test(stem)) addCandidate(candidates, stem.slice(0, -1));
+  }
+  if (base.endsWith('ier') && base.length > 4) addCandidate(candidates, base.slice(0, -3) + 'y');
+  if (base.endsWith('er') && base.length > 4) {
+    const stem = base.slice(0, -2);
+    addCandidate(candidates, stem);
+    addCandidate(candidates, stem + 'e');
+    if (/([a-z])\1$/.test(stem)) addCandidate(candidates, stem.slice(0, -1));
+  }
+  if (base.endsWith('iest') && base.length > 5) addCandidate(candidates, base.slice(0, -4) + 'y');
+  if (base.endsWith('est') && base.length > 5) {
+    const stem = base.slice(0, -3);
+    addCandidate(candidates, stem);
+    addCandidate(candidates, stem + 'e');
+    if (/([a-z])\1$/.test(stem)) addCandidate(candidates, stem.slice(0, -1));
+  }
+  if (base.endsWith('es') && base.length > 3) {
+    addCandidate(candidates, base.slice(0, -2));
+    addCandidate(candidates, base.slice(0, -1));
+  }
+  if (base.endsWith('s') && base.length > 3) addCandidate(candidates, base.slice(0, -1));
+}
 function normalizeCandidates(raw) {
-  const base = String(raw || '').toLowerCase().trim().replace(/^[^a-z]+|[^a-z]+$/g, '');
+  const base = cleanLookupKey(raw);
   const candidates = [base];
-  if (base.endsWith('ies')) candidates.push(base.slice(0, -3) + 'y');
-  if (base.endsWith('es')) candidates.push(base.slice(0, -2));
-  if (base.endsWith('s')) candidates.push(base.slice(0, -1));
-  if (base.endsWith('ing')) candidates.push(base.slice(0, -3));
-  if (base.endsWith('ed')) candidates.push(base.slice(0, -2));
+  if (irregular[base]) candidates.push(irregular[base]);
+  addStemCandidates(base, candidates);
+  if (base.includes('-')) {
+    base.split('-').filter(Boolean).forEach(function (part) {
+      candidates.push(part);
+      if (irregular[part]) candidates.push(irregular[part]);
+      addStemCandidates(part, candidates);
+    });
+  }
   return Array.from(new Set(candidates.filter(Boolean)));
 }
 function localLookup(raw) {
   for (const key of normalizeCandidates(raw)) {
     if (lessonDictionary[key]) return lessonDictionary[key];
   }
-  return { word: raw, zh: labels.fallbackZh, ipa: labels.fallbackIpa, pos: labels.fallbackPos };
+  return null;
 }
+async function onlineLookup(raw) {
+  const candidates = normalizeCandidates(raw);
+  const cacheKey = candidates[0] || cleanLookupKey(raw);
+  if (!cacheKey) return null;
+  if (remoteLookupCache.has(cacheKey)) return remoteLookupCache.get(cacheKey);
+  const result = { word: raw, zh: '', ipa: '', pos: '' };
+  for (const word of candidates) {
+    try {
+      const response = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word));
+      if (!response.ok) continue;
+      const data = await response.json();
+      const first = data && data[0];
+      if (!first) continue;
+      result.ipa = first.phonetic || (first.phonetics || []).map(function (item) { return item.text; }).find(Boolean) || '';
+      const pos = (first.meanings || [])[0] && first.meanings[0].partOfSpeech || '';
+      result.pos = posMap[pos] || pos;
+      break;
+    } catch (error) {}
+  }
+  try {
+    const translationWord = candidates[0] || cacheKey;
+    const response = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(translationWord) + '&langpair=en%7Czh-TW');
+    if (response.ok) {
+      const data = await response.json();
+      const translated = data && data.responseData && data.responseData.translatedText || '';
+      if (translated && translated.toLowerCase() !== translationWord.toLowerCase()) result.zh = translated;
+    }
+  } catch (error) {}
+  const entry = result.zh || result.ipa || result.pos ? result : null;
+  remoteLookupCache.set(cacheKey, entry);
+  return entry;
+}
+
 function activatePair(pairId) {
   document.querySelectorAll('.lesson-sentence.active').forEach((node) => node.classList.remove('active'));
   if (!pairId) return;
@@ -474,6 +624,9 @@ function sendDataCommand(command, payload) {
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, function (char) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]; });
 }
+function escapeAttr(value) {
+  return escapeHtml(value).replace(/`/g, '&#96;');
+}
 function renderLookup(entry, requestedWord) {
   const displayWord = entry && entry.word ? entry.word : requestedWord;
   const zh = entry && entry.zh ? entry.zh : labels.fallbackZh;
@@ -481,10 +634,11 @@ function renderLookup(entry, requestedWord) {
   const pos = entry && entry.pos ? entry.pos : labels.fallbackPos;
   const normalized = normalizeSaveKey(displayWord);
   const isSaved = savedWords.has(normalized);
-  const saveTitle = !cloudSyncEnabled ? '請先在設定輸入密碼開啟同步' : (isSaved ? '取消收藏' : '收藏單字');
+  const isLoading = zh === labels.loading;
+  const saveTitle = !cloudSyncEnabled ? '請先在設定輸入密碼開啟同步' : (isLoading ? '查詢完成後可收藏' : (isSaved ? '取消收藏' : '收藏單字'));
   return '<div class="lookup-head"><p class="lookup-word">' + escapeHtml(displayWord) + '</p>' +
-    '<div class="lookup-actions"><button type="button" class="star-button' + (isSaved ? ' is-saved' : '') + '" data-save-word="' + escapeHtml(displayWord) + '" data-normalized="' + escapeHtml(normalized) + '" data-zh="' + escapeHtml(zh) + '" data-ipa="' + escapeHtml(ipa) + '" data-pos="' + escapeHtml(pos) + '" title="' + saveTitle + '" aria-label="' + saveTitle + '" aria-pressed="' + (isSaved ? 'true' : 'false') + '"' + (!cloudSyncEnabled ? ' disabled' : '') + '>' + (isSaved ? '★' : '☆') + '</button>' +
-    '<button type="button" class="speak-button" data-speak-word="' + escapeHtml(displayWord) + '"' + ('speechSynthesis' in window ? '' : ' disabled') + '>' + labels.audio + '</button></div></div>' +
+    '<div class="lookup-actions"><button type="button" class="star-button' + (isSaved ? ' is-saved' : '') + '" data-save-word="' + escapeAttr(displayWord) + '" data-normalized="' + escapeAttr(normalized) + '" data-zh="' + escapeAttr(zh) + '" data-ipa="' + escapeAttr(ipa) + '" data-pos="' + escapeAttr(pos) + '" data-loading="' + (isLoading ? 'true' : 'false') + '" title="' + saveTitle + '" aria-label="' + saveTitle + '" aria-pressed="' + (isSaved ? 'true' : 'false') + '"' + ((!cloudSyncEnabled || isLoading) ? ' disabled' : '') + '>' + (isSaved ? '★' : '☆') + '</button>' +
+    '<button type="button" class="speak-button" data-speak-word="' + escapeAttr(displayWord) + '"' + (speechAvailable ? '' : ' disabled') + '>' + labels.audio + '</button></div></div>' +
     '<p class="lookup-row"><strong>' + labels.meaning + '</strong> ' + escapeHtml(zh) + '</p>' +
     '<p class="lookup-row"><strong>' + labels.ipa + '</strong> ' + escapeHtml(ipa) + '</p>' +
     '<p class="lookup-row"><strong>' + labels.pos + '</strong> ' + escapeHtml(pos) + '</p>';
@@ -493,10 +647,11 @@ function updateStarButtons() {
   document.querySelectorAll('[data-save-word]').forEach(function (button) {
     const key = normalizeSaveKey(button.dataset.normalized || button.dataset.saveWord);
     const isSaved = savedWords.has(key);
-    const title = !cloudSyncEnabled ? '請先在設定輸入密碼開啟同步' : (isSaved ? '取消收藏' : '收藏單字');
+    const isLoading = button.dataset.loading === 'true';
+    const title = !cloudSyncEnabled ? '請先在設定輸入密碼開啟同步' : (isLoading ? '查詢完成後可收藏' : (isSaved ? '取消收藏' : '收藏單字'));
     button.classList.toggle('is-saved', isSaved);
     button.textContent = isSaved ? '★' : '☆';
-    button.disabled = !cloudSyncEnabled;
+    button.disabled = !cloudSyncEnabled || isLoading;
     button.title = title;
     button.setAttribute('aria-label', title);
     button.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
@@ -546,7 +701,7 @@ function placePopover(popover, x, y) {
   });
 }
 function speakWord(raw) {
-  if (!('speechSynthesis' in window)) return;
+  if (!speechAvailable) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(raw);
   utterance.lang = 'en-US';
@@ -595,7 +750,7 @@ document.addEventListener('focusin', function (event) {
 document.addEventListener('mouseout', function (event) {
   if (!event.relatedTarget || !event.relatedTarget.closest || !event.relatedTarget.closest('.lesson-sentence')) activatePair(null);
 });
-document.addEventListener('click', function (event) {
+document.addEventListener('click', async function (event) {
   const starButton = event.target.closest('[data-save-word]');
   if (starButton) { event.stopPropagation(); if (!starButton.disabled) toggleSavedWord(starButton); return; }
   const speakButton = event.target.closest('[data-speak-word]');
@@ -605,8 +760,12 @@ document.addEventListener('click', function (event) {
   event.stopPropagation();
   const raw = word.dataset.word;
   placePopover(popover, event.clientX, event.clientY);
-  popover.innerHTML = renderLookup(localLookup(raw), raw);
+  const local = localLookup(raw);
+  popover.innerHTML = renderLookup(local || { word: raw, zh: labels.loading, ipa: '', pos: '' }, raw);
   popover.classList.add('visible');
+  if (local) return;
+  const remote = await onlineLookup(raw);
+  popover.innerHTML = renderLookup(remote || null, raw);
 });
 document.addEventListener('keydown', function (event) {
   if (event.key === 'Escape') popover.classList.remove('visible');

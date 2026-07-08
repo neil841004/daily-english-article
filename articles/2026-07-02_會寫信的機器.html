@@ -351,34 +351,134 @@ const lessonDictionary = {
     "zh": "意義"
   }
 };
+
+
 const labels = {
   audio: '發音',
   meaning: '意思：',
   ipa: 'IPA：',
   pos: '詞性：',
-  fallbackZh: '此字未收錄於今日字典，可先從上下文猜意思。',
-  fallbackIpa: '未收錄',
-  fallbackPos: '未收錄',
-  loading: '查詢中...'
+  loading: '查詢中...',
+  fallbackZh: '查不到這個字，請先依上下文猜意思。',
+  fallbackIpa: '未提供',
+  fallbackPos: '未提供'
 };
-const posMap = { noun: 'n.', verb: 'v.', adjective: 'adj.', adverb: 'adv.', preposition: 'prep.', conjunction: 'conj.' };
-const speechAvailable = 'speechSynthesis' in window;
+const posMap = { noun: 'n.', verb: 'v.', adjective: 'adj.', adverb: 'adv.', pronoun: 'pron.', preposition: 'prep.', conjunction: 'conj.', interjection: 'interj.' };
+const speechAvailable = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+const remoteLookupCache = new Map();
+const irregular = {
+  were: 'be', was: 'be', been: 'be', being: 'be', is: 'be', are: 'be', am: 'be',
+  did: 'do', does: 'do', done: 'do', had: 'have', has: 'have',
+  made: 'make', gave: 'give', given: 'give', gone: 'go', went: 'go',
+  took: 'take', taken: 'take', bought: 'buy', felt: 'feel', kept: 'keep',
+  seen: 'see', wrote: 'write', written: 'write', found: 'find', lost: 'lose',
+  left: 'leave', thought: 'think', told: 'tell', said: 'say', children: 'child',
+  people: 'person', memories: 'memory', businesses: 'business'
+};
+function cleanLookupKey(raw) {
+  return String(raw || '')
+    .toLowerCase()
+    .trim()
+    .replace(/&(?:#39|#x27|rsquo);/g, "'")
+    .replace(/[’`]/g, "'")
+    .replace(/^[^a-z]+|[^a-z]+$/g, '');
+}
+function addCandidate(candidates, value) {
+  if (value && value.length > 1) candidates.push(value);
+}
+function addStemCandidates(base, candidates) {
+  if (base.endsWith("'s") && base.length > 3) addCandidate(candidates, base.slice(0, -2));
+  if (base.endsWith('ies') && base.length > 4) addCandidate(candidates, base.slice(0, -3) + 'y');
+  if (base.endsWith('ves') && base.length > 4) {
+    addCandidate(candidates, base.slice(0, -3) + 'f');
+    addCandidate(candidates, base.slice(0, -3) + 'fe');
+  }
+  if (base.endsWith('ing') && base.length > 5) {
+    const stem = base.slice(0, -3);
+    addCandidate(candidates, stem);
+    addCandidate(candidates, stem + 'e');
+    if (/([a-z])\1$/.test(stem)) addCandidate(candidates, stem.slice(0, -1));
+  }
+  if (base.endsWith('ied') && base.length > 4) addCandidate(candidates, base.slice(0, -3) + 'y');
+  if (base.endsWith('ed') && base.length > 4) {
+    const stem = base.slice(0, -2);
+    addCandidate(candidates, stem);
+    addCandidate(candidates, stem + 'e');
+    if (/([a-z])\1$/.test(stem)) addCandidate(candidates, stem.slice(0, -1));
+  }
+  if (base.endsWith('ier') && base.length > 4) addCandidate(candidates, base.slice(0, -3) + 'y');
+  if (base.endsWith('er') && base.length > 4) {
+    const stem = base.slice(0, -2);
+    addCandidate(candidates, stem);
+    addCandidate(candidates, stem + 'e');
+    if (/([a-z])\1$/.test(stem)) addCandidate(candidates, stem.slice(0, -1));
+  }
+  if (base.endsWith('iest') && base.length > 5) addCandidate(candidates, base.slice(0, -4) + 'y');
+  if (base.endsWith('est') && base.length > 5) {
+    const stem = base.slice(0, -3);
+    addCandidate(candidates, stem);
+    addCandidate(candidates, stem + 'e');
+    if (/([a-z])\1$/.test(stem)) addCandidate(candidates, stem.slice(0, -1));
+  }
+  if (base.endsWith('es') && base.length > 3) {
+    addCandidate(candidates, base.slice(0, -2));
+    addCandidate(candidates, base.slice(0, -1));
+  }
+  if (base.endsWith('s') && base.length > 3) addCandidate(candidates, base.slice(0, -1));
+}
 function normalizeCandidates(raw) {
-  const base = String(raw || '').toLowerCase().replace(/^[^a-z]+|[^a-z]+$/g, '');
-  const list = [base];
-  if (base.endsWith('ies')) list.push(base.slice(0, -3) + 'y');
-  if (base.endsWith('es')) list.push(base.slice(0, -2));
-  if (base.endsWith('s')) list.push(base.slice(0, -1));
-  if (base.endsWith('ed')) list.push(base.slice(0, -2));
-  if (base.endsWith('ing')) list.push(base.slice(0, -3));
-  return Array.from(new Set(list.filter(Boolean)));
+  const base = cleanLookupKey(raw);
+  const candidates = [base];
+  if (irregular[base]) candidates.push(irregular[base]);
+  addStemCandidates(base, candidates);
+  if (base.includes('-')) {
+    base.split('-').filter(Boolean).forEach(function (part) {
+      candidates.push(part);
+      if (irregular[part]) candidates.push(irregular[part]);
+      addStemCandidates(part, candidates);
+    });
+  }
+  return Array.from(new Set(candidates.filter(Boolean)));
 }
 function localLookup(raw) {
-  for (const candidate of normalizeCandidates(raw)) {
-    if (lessonDictionary[candidate]) return lessonDictionary[candidate];
+  for (const key of normalizeCandidates(raw)) {
+    if (lessonDictionary[key]) return lessonDictionary[key];
   }
   return null;
 }
+async function onlineLookup(raw) {
+  const candidates = normalizeCandidates(raw);
+  const cacheKey = candidates[0] || cleanLookupKey(raw);
+  if (!cacheKey) return null;
+  if (remoteLookupCache.has(cacheKey)) return remoteLookupCache.get(cacheKey);
+  const result = { word: raw, zh: '', ipa: '', pos: '' };
+  for (const word of candidates) {
+    try {
+      const response = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word));
+      if (!response.ok) continue;
+      const data = await response.json();
+      const first = data && data[0];
+      if (!first) continue;
+      result.ipa = first.phonetic || (first.phonetics || []).map(function (item) { return item.text; }).find(Boolean) || '';
+      const pos = (first.meanings || [])[0] && first.meanings[0].partOfSpeech || '';
+      result.pos = posMap[pos] || pos;
+      break;
+    } catch (error) {}
+  }
+  try {
+    const translationWord = candidates[0] || cacheKey;
+    const response = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(translationWord) + '&langpair=en%7Czh-TW');
+    if (response.ok) {
+      const data = await response.json();
+      const translated = data && data.responseData && data.responseData.translatedText || '';
+      if (translated && translated.toLowerCase() !== translationWord.toLowerCase()) result.zh = translated;
+    }
+  } catch (error) {}
+  const entry = result.zh || result.ipa || result.pos ? result : null;
+  remoteLookupCache.set(cacheKey, entry);
+  return entry;
+}
+
 function activatePair(pairId) {
   document.querySelectorAll('.lesson-sentence.active').forEach((node) => node.classList.remove('active'));
   if (!pairId) return;
@@ -537,7 +637,7 @@ document.addEventListener('focusin', function (event) {
 document.addEventListener('mouseout', function (event) {
   if (!event.relatedTarget || !event.relatedTarget.closest || !event.relatedTarget.closest('.lesson-sentence')) activatePair(null);
 });
-document.addEventListener('click', function (event) {
+document.addEventListener('click', async function (event) {
   const starButton = event.target.closest('[data-save-word]');
   if (starButton) { event.stopPropagation(); if (!starButton.disabled) toggleSavedWord(starButton); return; }
   const speakButton = event.target.closest('[data-speak-word]');
@@ -547,8 +647,12 @@ document.addEventListener('click', function (event) {
   event.stopPropagation();
   const raw = word.dataset.word;
   placePopover(popover, event.clientX, event.clientY);
-  popover.innerHTML = renderLookup(localLookup(raw), raw);
+  const local = localLookup(raw);
+  popover.innerHTML = renderLookup(local || { word: raw, zh: labels.loading, ipa: '', pos: '' }, raw);
   popover.classList.add('visible');
+  if (local) return;
+  const remote = await onlineLookup(raw);
+  popover.innerHTML = renderLookup(remote || null, raw);
 });
 document.addEventListener('keydown', function (event) {
   if (event.key === 'Escape') popover.classList.remove('visible');
